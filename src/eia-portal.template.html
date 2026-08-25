@@ -475,6 +475,17 @@ table.queue tbody tr:last-child td{border-bottom:0}
 .mantable tr.catrow td{font-weight:700;color:var(--brand-strong);background:var(--surface-2);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
 .mantable tr:last-child td{border-bottom:0}
 .loadmsg{color:var(--ink-3);font-size:13px;padding:20px 4px}
+.barList{display:flex;flex-direction:column;gap:10px}
+.barRow .barText{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;font-weight:600;gap:10px}
+.barRow .barText strong{font-variant-numeric:tabular-nums}
+.barTrack{height:8px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-top:4px}
+.barTrack div{height:100%;background:linear-gradient(90deg,var(--brand),var(--sea));border-radius:999px}
+.statsgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+@media(max-width:820px){.statsgrid{grid-template-columns:1fr}}
+.repofilters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.repofilters input,.repofilters select{border:1px solid var(--line-strong);background:var(--surface);border-radius:9px;padding:8px 11px;font-size:13px}
+.repofilters input{flex:1;min-width:200px}
+.srcnote{font-size:11.5px;color:var(--ink-3);margin-top:10px}
 @media print{
   .side,.topbar,.actions,.noprint,.drawer,.scrim{display:none!important}
   .app{display:block}
@@ -615,7 +626,7 @@ const EXPEDITE_REQS=["gis","rawBaseline","rawWater","rawLab"];
 
 /* app state */
 let role="applicant";
-let current="overview";
+let current="stats";
 let selectedRef=null;      /* admin: submission being reviewed */
 let reviewData=null;       /* admin: loaded review record */
 let manifestData=null;     /* applicant: loaded manifest record */
@@ -928,6 +939,127 @@ async function submitForm(type,btn){
 
 /* ---------------- VIEWS ---------------- */
 const views={};
+
+/* ---- public statistics + repository (snapshot of era.gov.mv/reports.html) ---- */
+let eraReports=null;
+async function loadEraReports(){
+  if(eraReports)return eraReports;
+  const r=await fetch("reports.json",{cache:"no-store"});
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  eraReports=await r.json();
+  return eraReports;
+}
+function barList(rows){
+  const max=Math.max(...rows.map(r=>r.v),1);
+  const w=el("div","barList");
+  rows.forEach(r=>{
+    const b=el("div","barRow");
+    b.innerHTML="<div class='barText'><span>"+esc(r.k)+"</span><strong>"+r.v.toLocaleString()+"</strong></div><div class='barTrack'><div style='width:"+Math.max(3,(r.v/max)*100)+"%'></div></div>";
+    w.appendChild(b);
+  });
+  return w;
+}
+function countBy(list,fn){
+  const m={};list.forEach(x=>{const k=fn(x);m[k]=(m[k]||0)+1;});
+  return Object.entries(m).map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v);
+}
+function srcNote(j){
+  const n=el("p","srcnote");
+  n.innerHTML="Source: <a href='https://www.era.gov.mv/reports.html' target='_blank' rel='noopener' style='color:var(--brand-strong)'>era.gov.mv/reports.html</a> · "+j.count.toLocaleString()+" published reports · snapshot "+esc((j.snapshotAt||"").slice(0,10))+" · grouped by report name only";
+  return n;
+}
+
+views.stats=()=>{
+  const v=el("div","view");
+  v.appendChild((()=>{const h=el("div","pagehead");
+    h.innerHTML="<span class='eyebrow'><span class='en-only'>Public statistics</span><span class='dv'>ޢާންމު ތަފާސްހިސާބު</span></span>"+
+    "<h1><span class='en-only'>EIA submissions at a glance</span><span class='dv'>އީ.އައި.އޭ ހުށަހެޅުންތައް އެއް ނަޒަރުން</span></h1>"+
+    "<p class='lede en-only'>Live counts from ERA's published EIA repository, grouped by report name. Start a new submission from the sidebar, or browse every published report in the repository.</p>"+
+    "<p class='lede dv'>ERA އިން ޝާއިޢުކޮށްފައިވާ ރިޕޯޓްތަކުގެ ހިސާބުތައް.</p>";return h;})());
+  const holder=el("div","");holder.innerHTML="<p class='loadmsg'>Loading statistics…</p>";
+  v.appendChild(holder);
+  loadEraReports().then(j=>{
+    const r=j.reports;
+    const now=new Date();
+    const yy=String(now.getFullYear());
+    const ym=yy+"-"+String(now.getMonth()+1).padStart(2,"0");
+    const thisYear=r.filter(x=>x.y===yy).length;
+    const thisMonth=r.filter(x=>(x.d||"").startsWith(ym)).length;
+    const monthName=now.toLocaleString("en",{month:"long"});
+    holder.innerHTML="";
+    const kpis=el("div","kpis");
+    [["received","EIAs received (all years)",j.count.toLocaleString()],
+     ["review","Received in "+yy,thisYear],
+     ["approved",monthName+" "+yy,thisMonth],
+     ["revisions","Addenda filed",r.filter(x=>x.t==="Addendum").length]
+    ].forEach(k=>{const t=el("div","kpi "+k[0]);t.innerHTML="<div class='kv tnum'>"+k[2]+"</div><div class='kl'>"+k[1]+"</div>";kpis.appendChild(t);});
+    holder.appendChild(kpis);
+    const grid2=el("div","statsgrid");
+    grid2.appendChild(section(null,"Types of EIAs — by project","މަޝްރޫޢުގެ ބާވަތުން",barList(countBy(r,x=>x.c))));
+    const right=el("div","");right.style.display="flex";right.style.flexDirection="column";right.style.gap="18px";
+    right.appendChild(section(null,"By document type","ލިޔުމުގެ ބާވަތުން",barList(countBy(r,x=>x.t))));
+    right.appendChild(section(null,"By year","އަހަރުން",barList(countBy(r,x=>x.y).sort((a,b)=>b.k.localeCompare(a.k)).slice(0,8))));
+    grid2.appendChild(right);
+    holder.appendChild(grid2);
+    const cta=el("div","actions");cta.style.justifyContent="flex-start";
+    const b1=el("button","btn primary");b1.innerHTML="<span class='en-only'>Start a submission</span><span class='dv'>ހުށަހެޅުމެއް ފަށާ</span>";
+    b1.addEventListener("click",()=>{current="application";go();});
+    const b2=el("button","btn ghost");b2.innerHTML="<span class='en-only'>Browse the repository →</span><span class='dv'>ރިޕޯޓްތައް ބަލާ →</span>";
+    b2.addEventListener("click",()=>{current="repository";go();});
+    cta.appendChild(b1);cta.appendChild(b2);
+    holder.appendChild(cta);
+    holder.appendChild(srcNote(j));
+  }).catch(e=>{holder.innerHTML="<p class='loadmsg'>Could not load statistics: "+esc(e.message)+"</p>";});
+  return v;
+};
+
+views.repository=()=>{
+  const v=el("div","view");
+  v.appendChild(formHead("Published EIA reports","ޝާއިޢުކުރި ރިޕޯޓްތައް","EIA Repository","އީ.އައި.އޭ ރިޕޮޒިޓަރީ"));
+  const holder=el("div","");holder.innerHTML="<p class='loadmsg'>Loading repository…</p>";
+  v.appendChild(holder);
+  loadEraReports().then(j=>{
+    holder.innerHTML="";
+    const filters=el("div","repofilters");
+    const q=el("input");q.placeholder="Search project, island, atoll…";
+    const ysel=el("select");const years=[...new Set(j.reports.map(x=>x.y))].sort().reverse();
+    ysel.innerHTML="<option value=''>All years</option>"+years.map(y=>"<option>"+esc(y)+"</option>").join("");
+    const csel=el("select");
+    csel.innerHTML="<option value=''>All types</option>"+countBy(j.reports,x=>x.c).map(c=>"<option>"+esc(c.k)+"</option>").join("");
+    const tsel=el("select");
+    tsel.innerHTML="<option value=''>All documents</option>"+countBy(j.reports,x=>x.t).map(c=>"<option>"+esc(c.k)+"</option>").join("");
+    [q,ysel,csel,tsel].forEach(x=>filters.appendChild(x));
+    holder.appendChild(filters);
+    const listWrap=el("div","");
+    holder.appendChild(listWrap);
+    holder.appendChild(srcNote(j));
+    const CAP=250;
+    function render(){
+      const term=q.value.toLowerCase().trim();
+      let rows=j.reports.filter(x=>
+        (!ysel.value||x.y===ysel.value)&&
+        (!csel.value||x.c===csel.value)&&
+        (!tsel.value||x.t===tsel.value)&&
+        (!term||x.n.toLowerCase().includes(term)));
+      listWrap.innerHTML="";
+      const tw=el("div","tablewrap");
+      const tbl=el("table","queue");
+      tbl.innerHTML="<thead><tr><th>Date</th><th>Report</th><th>Document</th><th>Type</th><th>Year</th></tr></thead>";
+      const tb=el("tbody");
+      rows.slice(0,CAP).forEach(x=>{const tr=el("tr");
+        tr.innerHTML="<td class='tnum'>"+esc(x.d||"—")+"</td><td><a href='"+esc(x.u)+"' target='_blank' rel='noopener' style='color:var(--brand-strong);font-weight:600;text-decoration:none'>"+esc(x.n)+"</a></td><td><span class='typechip'>"+esc(x.t)+"</span></td><td>"+esc(x.c)+"</td><td class='tnum'>"+esc(x.y)+"</td>";
+        tr.addEventListener("click",()=>window.open(x.u,"_blank","noopener"));
+        tb.appendChild(tr);});
+      tbl.appendChild(tb);tw.appendChild(tbl);
+      const cnt=el("p","srcnote");
+      cnt.textContent=rows.length.toLocaleString()+" report"+(rows.length===1?"":"s")+(rows.length>CAP?" — showing first "+CAP+", refine the search to narrow down":"")+".";
+      listWrap.appendChild(cnt);listWrap.appendChild(tw);
+    }
+    [q,ysel,csel,tsel].forEach(x=>x.addEventListener("input",render));
+    render();
+  }).catch(e=>{holder.innerHTML="<p class='loadmsg'>Could not load the repository: "+esc(e.message)+"</p>";});
+  return v;
+};
 
 views.overview=()=>{
   const v=el("div","view");
@@ -1417,6 +1549,8 @@ function gateNote(){const n=el("div","note");n.style.background="var(--info-soft
 
 /* ---------------- nav & chrome ---------------- */
 const NAV_APPLICANT=[
+  {id:"stats",en:"Dashboard",dv:"ޑޭޝްބޯޑް",step:"▦"},
+  {id:"repository",en:"EIA Repository",dv:"ރިޕޮޒިޓަރީ",step:"≡"},
   {id:"overview",en:"Overview",dv:"ޚުލާސާ",step:"◆"},
   {id:"screening",en:"Screening",dv:"ސްކްރީނިންގ",step:"S",optional:1},
   {id:"application",en:"EIA Application",dv:"އެޕްލިކޭޝަން",step:"1"},
@@ -1476,7 +1610,7 @@ function renderTopBar(){
     }
     return;
   }
-  const vl={overview:["Working record","މަސައްކަތު ރެކޯޑް"],screening:["Screening","ސްކްރީނިންގ"],application:["EIA Application","އެޕްލިކޭޝަން"],report:["EIA Report","ރިޕޯޓް"],addendum:["Addendum","އެޑެންޑަމް"],manifest:["Manifest","މެނިފެސްޓް"]};
+  const vl={stats:["Statistics","ތަފާސްހިސާބު"],repository:["Repository","ރިޕޮޒިޓަރީ"],overview:["Working record","މަސައްކަތު ރެކޯޑް"],screening:["Screening","ސްކްރީނިންގ"],application:["EIA Application","އެޕްލިކޭޝަން"],report:["EIA Report","ރިޕޯޓް"],addendum:["Addendum","އެޑެންޑަމް"],manifest:["Manifest","މެނިފެސްޓް"]};
   const d=vl[current]||vl.overview;
   const refShown=(current==="manifest"&&manifestData)?manifestData.ref:eiaCase.referenceNo;
   cb.innerHTML=

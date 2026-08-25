@@ -9,6 +9,8 @@ assignment, audit), now with a real database and real file uploads.
 
 **Applicant side** (public, bilingual EN / ދިވެހި):
 
+- Opens on a **public statistics dashboard**: EIAs received (all years / this year / this month), types of EIAs by project category, document type, and year — computed from ERA's published-report names.
+- **EIA Repository**: all ~2,100 published reports from [era.gov.mv/reports.html](https://www.era.gov.mv/reports.html) with search, year/type filters, and links to the official SharePoint folders. Snapshot lives in `reports.json`; refresh with `python scripts/build_reports.py` (groups by report *name* only — no report contents are fetched).
 - The four ERA forms as one lifecycle: Screening (optional) → EIA Application → Report Submission → Addendum (attaches to a real previously-submitted report).
 - Real file uploads per document category — EIA report docs plus raw-data packages: GIS / island shapefiles with sampling locations, baseline survey data, water quality & environmental sampling data, bathymetry, lab testing reports, site photos.
 - **Every file requires a typed description of its contents.** Submission is blocked without one.
