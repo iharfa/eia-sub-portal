@@ -1,0 +1,14 @@
+{
+  "name": "eia-sub-portal",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "html": "python src/build.py",
+    "db:init": "node scripts/init-db.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "@vercel/blob": "^1.1.0"
+  }
+}
