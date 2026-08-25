@@ -523,6 +523,7 @@ table.queue tbody tr:last-child td{border-bottom:0}
       <div class="tools">
         <div class="roletoggle" role="group" aria-label="View as">
           <button id="roleApp" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Applicant</button>
+          <button id="roleOfficer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v13H4zM4 9h16M9 21h6"/></svg>ERA Officer</button>
           <button id="roleAdmin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6z"/><path d="m9 12 2 2 4-4"/></svg>ERA Admin</button>
         </div>
         <button class="tbtn" id="hlBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.5 5 5.5.8-4 3.9.9 5.5L12 21l-4.9 2.6.9-5.5-4-3.9 5.5-.8Z"/></svg>Highlight shared data</button>
@@ -628,7 +629,12 @@ let selectedRef=null;      /* admin: submission being reviewed */
 let reviewData=null;       /* admin: loaded review record */
 let manifestData=null;     /* applicant: loaded manifest record */
 let adminRows=[];          /* admin: queue cache */
-let adminKey=localStorage.getItem("eiaAdminKey")||"";
+/* staff access: two console levels, each with its own key (officer works the
+   queue, admin decides). Keys are remembered per browser after first entry. */
+const KEY_STORE={officer:"eiaOfficerKey",admin:"eiaAdminKey"};
+const staffKeys={officer:localStorage.getItem(KEY_STORE.officer)||"",admin:localStorage.getItem(KEY_STORE.admin)||""};
+const isStaff=()=>role==="officer"||role==="admin";
+const staffKey=()=>staffKeys[role]||"";
 let submittedReports=[];   /* registry for the addendum selector */
 let reportsLoaded=false;
 
@@ -655,17 +661,18 @@ async function blobUpload(file,onProgress){
   });
 }
 function askAdminKey(msg){
-  const k=prompt(msg||"ERA admin key:");
-  if(k!=null){adminKey=k.trim();localStorage.setItem("eiaAdminKey",adminKey);}
-  return adminKey;
+  const store=KEY_STORE[role]||KEY_STORE.admin;
+  const k=prompt(msg||(role==="officer"?"ERA officer key:":"ERA admin key:"));
+  if(k!=null){staffKeys[role==="officer"?"officer":"admin"]=k.trim();localStorage.setItem(store,k.trim());}
+  return staffKey();
 }
 async function adminFetch(path,opts={}){
-  if(!adminKey)askAdminKey();
-  opts.headers=Object.assign({},opts.headers,{"x-admin-key":adminKey});
+  if(!staffKey())askAdminKey();
+  opts.headers=Object.assign({},opts.headers,{"x-admin-key":staffKey()});
   let r=await fetch(path,opts);
   if(r.status===401){
-    askAdminKey("Key rejected. ERA admin key:");
-    opts.headers["x-admin-key"]=adminKey;
+    askAdminKey("Key rejected. Enter the correct key:");
+    opts.headers["x-admin-key"]=staffKey();
     r=await fetch(path,opts);
   }
   return r;
@@ -1324,16 +1331,22 @@ function renderReview(holder,m){
   }
 
   if(m.type==="screening"){
-    const dec=el("div","decision");
-    Object.keys(DECISION_LABELS).forEach(vv=>{
-      const lab=el("label","opt"+(m.decision===vv?" sel":""));
-      lab.innerHTML="<input type='radio' name='decision' "+(m.decision===vv?"checked":"")+"><span class='oc'><span class='t'>"+DECISION_LABELS[vv]+"</span></span>";
-      lab.querySelector("input").addEventListener("change",async()=>{
-        const r=await patchSubmission(m.id,{decision:vv});
-        if(r){m.decision=vv;dec.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));lab.classList.add("sel");}
-      });
-      dec.appendChild(lab);});
-    main.appendChild(section("★","Screening decision (ERA)","ސްކްރީނިންގ ނިންމުން",dec));
+    if(role==="admin"){
+      const dec=el("div","decision");
+      Object.keys(DECISION_LABELS).forEach(vv=>{
+        const lab=el("label","opt"+(m.decision===vv?" sel":""));
+        lab.innerHTML="<input type='radio' name='decision' "+(m.decision===vv?"checked":"")+"><span class='oc'><span class='t'>"+DECISION_LABELS[vv]+"</span></span>";
+        lab.querySelector("input").addEventListener("change",async()=>{
+          const r=await patchSubmission(m.id,{decision:vv});
+          if(r){m.decision=vv;dec.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));lab.classList.add("sel");}
+        });
+        dec.appendChild(lab);});
+      main.appendChild(section("★","Screening decision (ERA)","ސްކްރީނިންގ ނިންމުން",dec));
+    }else{
+      const ro=el("div","metalist");
+      ro.innerHTML=metaRow("Current decision",m.decision?esc(DECISION_LABELS[m.decision]||m.decision):"— pending (admin records this)");
+      main.appendChild(section("★","Screening decision (admin only)","ސްކްރީނިންގ ނިންމުން",ro));
+    }
   }
 
   if(m.notes){/* shown in aside editor */}
@@ -1350,9 +1363,15 @@ function reviewAside(m){
     const b=el("button","btn "+cls);b.innerHTML="<span class='en-only'>"+en+"</span><span class='dv'>"+dv+"</span>";
     b.addEventListener("click",async()=>{const r=await patchSubmission(m.id,{status});if(r){m.status=status;reviewData=m;renderTopBar();go();}});
     return b;};
-  ac.appendChild(mk("approve","Approve","ފާސްކުރޭ","approved"));
-  ac.appendChild(mk("revise","Request revisions","އިޞްލާޙަށް","revisions"));
-  ac.appendChild(mk("reject","Reject","ބޭރުކުރޭ","rejected"));
+  if(role==="admin"){
+    ac.appendChild(mk("approve","Approve","ފާސްކުރޭ","approved"));
+    ac.appendChild(mk("revise","Request revisions","އިޞްލާޙަށް","revisions"));
+    ac.appendChild(mk("reject","Reject","ބޭރުކުރޭ","rejected"));
+  }else{
+    const n=el("p");n.style.cssText="font-size:12px;color:var(--ink-3);margin:0 0 10px;line-height:1.5";
+    n.innerHTML="<span class='en-only'>Officer access — approve / revisions / reject require ERA Admin.</span><span class='dv'>ފާސްކުރުން ފަދަ ނިންމުން ނިންމޭނީ އެޑްމިނަށް.</span>";
+    ac.appendChild(n);
+  }
   if(m.status==="received")ac.appendChild(mk("ghost","Mark under review","ބަލަން ފަށާ","review"));
   aside.appendChild(ac);
 
@@ -1422,10 +1441,10 @@ function renderNav(){
   const nav=$("#nav");
   nav.querySelectorAll(".navbtn").forEach(n=>n.remove());
   const gl=nav.querySelector(".grouplabel");
-  if(gl)gl.innerHTML=(role==="admin")
+  if(gl)gl.innerHTML=isStaff()
     ?"<span class='en-only'>ERA Review Console</span><span class='dv'>ރިވިއު ކޮންސޯލް</span>"
     :"<span class='en-only'>Environmental Impact Assessment</span><span class='dv'>ތިމާވެށީގެ އަސަރު</span>";
-  (role==="admin"?NAV_ADMIN:NAV_APPLICANT).forEach(item=>{
+  (isStaff()?NAV_ADMIN:NAV_APPLICANT).forEach(item=>{
     const b=el("button","navbtn"+(current===item.id?" active":""));
     const right=item.optional?"<span class='opt-badge'><span class='en-only'>Optional</span><span class='dv'>އިޚްތިޔާރީ</span></span>":"";
     b.innerHTML="<span class='step'>"+item.step+"</span><span class='txt'><span class='en-only'>"+item.en+"</span><span class='dv'>"+item.dv+"</span></span>"+right;
@@ -1434,22 +1453,26 @@ function renderNav(){
   });
 }
 function setRole(r){
-  role=r;current=(r==="admin")?"dashboard":"overview";
-  if(r==="admin"&&!adminKey)askAdminKey();
-  document.body.classList.toggle("role-admin",r==="admin");
+  role=r;current=isStaff()?"dashboard":"overview";
+  if(isStaff()&&!staffKey())askAdminKey();
+  document.body.classList.toggle("role-admin",isStaff());
   $("#roleApp").classList.toggle("on",r==="applicant");
+  $("#roleOfficer").classList.toggle("on",r==="officer");
   $("#roleAdmin").classList.toggle("on",r==="admin");
   syncAll();go();
 }
 function renderTopBar(){
   const cb=$("#casebar");
-  if(role==="admin"){
+  const roleFlag=role==="admin"
+    ?"<span class='en-only'>ERA Admin view</span><span class='dv'>ERA އެޑްމިން</span>"
+    :"<span class='en-only'>ERA Officer view</span><span class='dv'>ERA އޮފިސަރު</span>";
+  if(isStaff()){
     if(current==="review"&&reviewData){const s=reviewData;const cd=s.case_data||{};
       cb.innerHTML="<span class='ref'>"+iconGrid()+esc(s.ref)+"</span>"+
         cell("Proponent","ފަރާތް",esc((cd.proponent||{}).name||"—"))+cell("Project","މަޝްރޫޢު",esc((cd.project||{}).name||"—"))+cell("Officer","އޮފިސަރު",esc(s.officer))+
         "<span class='spacer'></span>"+
         (s.expedited?"<span class='expchip'>⚡ Expedited</span>":"")+
-        "<span class='adminflag'>"+iconShield()+"<span class='en-only'>ERA staff view</span><span class='dv'>ERA ސްޓާފް</span></span>"+
+        "<span class='adminflag'>"+iconShield()+roleFlag+"</span>"+
         "<span class='st "+esc(s.status)+"'>"+(STATUS[s.status]||["?"])[0]+"</span>";
     } else {
       const c={received:0,review:0,revisions:0,approved:0,rejected:0};
@@ -1458,7 +1481,7 @@ function renderTopBar(){
         cell("Open","ހުޅުވިފައި",(c.received+c.review+c.revisions))+
         cell("Approved","ފާސްކުރި",c.approved)+
         "<span class='spacer'></span>"+
-        "<span class='adminflag'>"+iconShield()+"<span class='en-only'>ERA staff only</span><span class='dv'>ERA ސްޓާފުންނަށް</span></span>";
+        "<span class='adminflag'>"+iconShield()+roleFlag+"</span>";
     }
     return;
   }
@@ -1502,6 +1525,7 @@ $("#langDv").onclick=()=>setLang("dv");
 
 /* role */
 $("#roleApp").onclick=()=>setRole("applicant");
+$("#roleOfficer").onclick=()=>setRole("officer");
 $("#roleAdmin").onclick=()=>setRole("admin");
 
 /* highlight shared */

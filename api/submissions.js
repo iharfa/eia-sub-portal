@@ -1,10 +1,10 @@
-import { sql, isAdmin } from "./_db.js";
+import { sql, staffRole } from "./_db.js";
 
 const PREFIX = { screening: "SCR", application: "EIA-A", report: "EIA-R", addendum: "EIA-AD" };
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    if (!isAdmin(req)) return res.status(401).json({ error: "unauthorized" });
+    if (!staffRole(req)) return res.status(401).json({ error: "unauthorized" });
     const rows = await sql`
       select s.id, s.ref, s.type, s.status, s.officer, s.expedited, s.fee_tier, s.created_at,
              s.case_data->'proponent'->>'name' as proponent,

@@ -33,7 +33,8 @@ assignment, audit), now with a real database and real file uploads.
 |---|---|
 | `DATABASE_URL` | Neon Postgres connection string |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob store token (auto-set when the store is connected to the project) |
-| `ADMIN_KEY` | Shared key for the ERA admin console |
+| `ADMIN_KEY` | Key for the ERA Admin console level (full access incl. decisions) |
+| `OFFICER_KEY` | Key for the ERA Officer console level (queue work: verify files, assign, notes, mark under review — no decisions) |
 
 ## Setup
 
@@ -49,6 +50,6 @@ vercel deploy --prod
 ## Demo-scale placeholders (upgrade path)
 
 - The reference number is the lookup token for manifests — add applicant accounts for production.
-- `ADMIN_KEY` is one shared key — replace with real staff auth + roles for production.
+- Staff access is two shared keys (officer / admin) — replace with real staff auth + per-user roles for production.
 - Blob store is public-read; ~250MB demo budget, 200MB/file cap in `api/upload.js`.
 - era-dashboard's Excel-seeded monitoring/inspection modules are not merged; point them at this database as a next step.
