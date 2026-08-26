@@ -496,6 +496,23 @@ table.queue tbody tr:last-child td{border-bottom:0}
 .sideacct .abtns button{flex:1;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);border-radius:7px;padding:6px 4px;font-size:11.5px;font-weight:600;cursor:pointer}
 .sideacct .abtns button:hover{border-color:var(--brand);color:var(--brand-strong)}
 .sideacct .signin{width:100%;border:0;background:var(--brand);color:#fff;border-radius:8px;padding:8px;font-size:12.5px;font-weight:700;cursor:pointer}
+/* top-right account button + dropdown */
+.acctmenu{position:relative}
+.acctbtn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--brand);background:var(--brand);color:#fff;padding:7px 13px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s}
+.acctbtn:hover{background:var(--brand-strong);border-color:var(--brand-strong)}
+.acctbtn svg{width:14px;height:14px}
+.acctbtn.in{background:var(--surface);color:var(--ink);border-color:var(--line-strong)}
+.acctbtn.in:hover{border-color:var(--brand);color:var(--brand-strong)}
+.acctbtn .dotv{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:0 0 auto}
+.acctbtn .nm{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acctpop{position:absolute;top:calc(100% + 6px);inset-inline-end:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-lg);min-width:200px;z-index:70;display:none;padding:6px}
+.acctpop.open{display:block}
+.acctpop .who{padding:8px 10px 9px;font-size:11px;color:var(--ink-3);border-bottom:1px solid var(--line);margin-bottom:6px}
+.acctpop .who b{display:block;color:var(--ink);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acctpop button{display:block;width:100%;text-align:start;border:0;background:transparent;color:var(--ink-2);padding:8px 10px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer}
+.acctpop button:hover{background:var(--brand-tint);color:var(--ink)}
+.acctpop button.out{color:var(--crit)}
+.acctpop button.out:hover{background:var(--crit-soft)}
 .vbadge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em}
 .vbadge.ok{background:var(--ok-soft);color:var(--ok)}
 .vbadge.pending{background:var(--amber-soft);color:var(--amber)}
@@ -560,7 +577,6 @@ table.queue tbody tr:last-child td{border-bottom:0}
       <div class="grouplabel">Environmental Impact Assessment</div>
       <!-- nav buttons injected -->
     </nav>
-    <div class="sideacct" id="sideAcct"></div>
     <div class="foot">
       Demonstration system · bilingual (EN / ދިވެހި)<br>
       Environmental Regulatory Authority<br>
@@ -580,6 +596,7 @@ table.queue tbody tr:last-child td{border-bottom:0}
           <button id="langDv" lang="dv" style="font-family:var(--font-thaana)">ދިވެހި</button>
         </div>
         <button class="tbtn" id="themeBtn" aria-label="Toggle theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg></button>
+        <div class="acctmenu" id="topAcct"></div>
       </div>
     </div>
     <div class="canvas" id="canvas"></div>
@@ -1849,40 +1866,58 @@ views.account=()=>{
   const v=el("div","view");
   if(!auth){
     v.appendChild(formHead("Consultant account","ކޮންސަލްޓަންޓް އެކައުންޓް","Consultant sign in","ކޮންސަލްޓަންޓުން ވަދޭ"));
-    const wrap=el("div","authwrap");
-    /* sign in */
-    const se=authField("Email or username"),sp=authField("Password","password");
-    const sb=el("button","btn primary");sb.textContent="Sign in";
-    const smsg=el("p","updstamp");
-    const staffNote=el("p","updstamp");staffNote.style.marginTop="12px";
-    staffNote.innerHTML="ERA staff? <a href='#staff' style='color:var(--brand-strong)'>Sign in to the review console here</a>.";
-    sb.addEventListener("click",async()=>{
-      sb.disabled=true;smsg.textContent="Signing in…";
-      const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"login",email:se.input.value,password:sp.input.value})});
-      const j=await r.json().catch(()=>({}));sb.disabled=false;
-      if(!r.ok){smsg.textContent=j.error||"Sign-in failed";return;}
-      saveAuth(j);myConsultant=null;applyRole();syncAll();
-      current=isStaffUser()?"dashboard":"account";go();
-    });
-    sp.input.addEventListener("keydown",e=>{if(e.key==="Enter")sb.click();});
-    wrap.appendChild(section(null,"Sign in","ވަދޭ",[se,sp,sb,smsg,staffNote]));
-    /* register */
-    const rn=authField("Full name / lead consultant"),re=authField("Email","email"),
-          rc=authField("Company / consultancy (optional)"),rp2=authField("Phone"),
-          rw=authField("Password (min 8 characters)","password");
-    const rb=el("button","btn primary");rb.textContent="Create consultant account";
-    const rmsg=el("p","updstamp");
-    rb.addEventListener("click",async()=>{
-      rb.disabled=true;rmsg.textContent="Creating account…";
-      const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"register",name:rn.input.value,email:re.input.value,company:rc.input.value,phone:rp2.input.value,password:rw.input.value})});
-      const j=await r.json().catch(()=>({}));rb.disabled=false;
-      if(!r.ok){rmsg.textContent=j.error||"Registration failed";return;}
-      saveAuth(j);myConsultant=null;applyRole();syncAll();current="account";go();
-    });
-    const note=el("p","updstamp");
-    note.innerHTML="If your email is already on ERA's consultant registry, your account links to that entry automatically. New registrations are created as <b>pending</b> until ERA verifies them.";
-    wrap.appendChild(section(null,"New consultant? Register","ރަޖިސްޓަރ ކުރޭ",[rn,re,rc,rp2,rw,rb,rmsg,note]));
-    v.appendChild(wrap);
+    const holder=el("div","");
+    v.appendChild(holder);
+    let mode="signin"; /* registration stays hidden until asked for */
+    function paint(){
+      holder.innerHTML="";
+      if(mode==="signin"){
+        const se=authField("Email or username"),sp=authField("Password","password");
+        const sb=el("button","btn primary");sb.textContent="Sign in";
+        const smsg=el("p","updstamp");
+        sb.addEventListener("click",async()=>{
+          sb.disabled=true;smsg.textContent="Signing in…";
+          const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"login",email:se.input.value,password:sp.input.value})});
+          const j=await r.json().catch(()=>({}));sb.disabled=false;
+          if(!r.ok){smsg.textContent=j.error||"Sign-in failed";return;}
+          saveAuth(j);myConsultant=null;applyRole();syncAll();
+          current=isStaffUser()?"dashboard":"account";go();
+        });
+        sp.input.addEventListener("keydown",e=>{if(e.key==="Enter")sb.click();});
+        const reg=el("button","btn ghost");
+        reg.innerHTML="<span class='en-only'>No account yet? Create one</span><span class='dv'>އެކައުންޓެއް ނެތް؟ ހަދާ</span>";
+        reg.addEventListener("click",()=>{mode="register";paint();});
+        const row=el("div","");row.style.cssText="display:flex;gap:10px;flex-wrap:wrap";
+        row.appendChild(sb);row.appendChild(reg);
+        const staffNote=el("p","updstamp");staffNote.style.marginTop="12px";
+        staffNote.innerHTML="ERA staff? <a href='#staff' style='color:var(--brand-strong)'>Sign in to the review console here</a>.";
+        const card=section(null,"Sign in","ވަދޭ",[se,sp,row,smsg,staffNote]);
+        card.style.maxWidth="480px";
+        holder.appendChild(card);
+      }else{
+        const rn=authField("Full name / lead consultant"),re=authField("Email","email"),
+              rc=authField("Company / consultancy (optional)"),rp2=authField("Phone"),
+              rw=authField("Password (min 8 characters)","password");
+        const rb=el("button","btn primary");rb.textContent="Create consultant account";
+        const rmsg=el("p","updstamp");
+        rb.addEventListener("click",async()=>{
+          rb.disabled=true;rmsg.textContent="Creating account…";
+          const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"register",name:rn.input.value,email:re.input.value,company:rc.input.value,phone:rp2.input.value,password:rw.input.value})});
+          const j=await r.json().catch(()=>({}));rb.disabled=false;
+          if(!r.ok){rmsg.textContent=j.error||"Registration failed";return;}
+          saveAuth(j);myConsultant=null;applyRole();syncAll();current="account";go();
+        });
+        const note=el("p","updstamp");
+        note.innerHTML="If your email is already on ERA's consultant registry, your account links to that entry automatically. New registrations are created as <b>pending</b> until ERA verifies them.";
+        const back=el("p","updstamp");back.style.marginTop="12px";
+        back.innerHTML="Already have an account? <a href='#' style='color:var(--brand-strong)'>Sign in</a>.";
+        back.querySelector("a").addEventListener("click",e=>{e.preventDefault();mode="signin";paint();});
+        const card=section(null,"New consultant? Register","ރަޖިސްޓަރ ކުރޭ",[rn,re,rc,rp2,rw,rb,rmsg,note,back]);
+        card.style.maxWidth="560px";
+        holder.appendChild(card);
+      }
+    }
+    paint();
     return v;
   }
   /* signed-in dashboard */
@@ -2260,27 +2295,30 @@ function renderJson(){
 function syncAll(){renderTopBar();renderJson();renderAcct();}
 /* persistent account block at the bottom of the sidebar:
    signed out → Sign in / Register; signed in → name, role, Settings, Sign out */
+function iconUser(){return "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><circle cx='12' cy='8' r='4'/><path d='M4 21c0-4 4-6 8-6s8 2 8 6'/></svg>";}
 function renderAcct(){
-  const w=$("#sideAcct");
+  const w=$("#topAcct");
   if(!w)return;
   w.innerHTML="";
   if(!auth){
-    const b=el("button","signin");
-    b.innerHTML="<span class='en-only'>Sign in / Register</span><span class='dv'>ވަދޭ / ރަޖިސްޓަރ</span>";
+    const b=el("button","acctbtn");
+    b.innerHTML=iconUser()+"<span class='en-only'>My account</span><span class='dv'>އެކައުންޓް</span>";
     b.addEventListener("click",()=>{current="account";go();});
     w.appendChild(b);
   }else{
-    const who=el("div","who");
-    who.innerHTML="<span class='dotv'></span><span class='nm'>"+esc(auth.user.name||auth.user.email)+"</span>"+
-      (isStaffUser()?"<span class='rolechip'>ERA "+esc(auth.user.role)+"</span>":"<span class='rolechip' style='background:var(--ok-soft);color:var(--ok)'>Consultant</span>");
-    w.appendChild(who);
-    const btns=el("div","abtns");
-    const st=el("button");st.innerHTML="<span class='en-only'>⚙ Settings</span><span class='dv'>ސެޓިންގްސް</span>";
-    st.addEventListener("click",()=>{current="settings";go();});
-    const so=el("button");so.innerHTML="<span class='en-only'>Sign out</span><span class='dv'>ނުކުމޭ</span>";
-    so.addEventListener("click",doLogout);
-    btns.appendChild(st);btns.appendChild(so);
-    w.appendChild(btns);
+    const b=el("button","acctbtn in");
+    b.innerHTML="<span class='dotv'></span>"+iconUser()+"<span class='nm'>"+esc(auth.user.name||auth.user.email)+"</span>";
+    const pop=el("div","acctpop");
+    pop.innerHTML="<div class='who'><b>"+esc(auth.user.name||auth.user.email)+"</b>"+(isStaffUser()?"ERA "+esc(auth.user.role):"Consultant")+"</div>";
+    const mk=(label,fn,cls)=>{const x=el("button",cls||"");x.innerHTML=label;x.addEventListener("click",()=>{pop.classList.remove("open");fn();});pop.appendChild(x);};
+    mk("<span class='en-only'>My account</span><span class='dv'>އަހަރެންގެ އެކައުންޓް</span>",()=>{current="account";go();});
+    if(isStaffUser())mk("<span class='en-only'>Review console</span><span class='dv'>ރިވިއު ކޮންސޯލް</span>",()=>{current="dashboard";go();});
+    mk("<span class='en-only'>Settings</span><span class='dv'>ސެޓިންގްސް</span>",()=>{current="settings";go();});
+    mk("<span class='en-only'>Sign out</span><span class='dv'>ނުކުމޭ</span>",doLogout,"out");
+    b.addEventListener("click",e=>{e.stopPropagation();pop.classList.toggle("open");});
+    if(!window.__acctDocClose){window.__acctDocClose=1;
+      document.addEventListener("click",()=>{document.querySelectorAll(".acctpop.open").forEach(p=>p.classList.remove("open"));});}
+    w.appendChild(b);w.appendChild(pop);
   }
   const sl=$("#staffLink");
   if(sl)sl.style.display=auth?"none":"inline";
