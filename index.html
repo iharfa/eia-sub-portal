@@ -528,6 +528,19 @@ table.queue tbody tr:last-child td{border-bottom:0}
 .teamrow input{border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;padding:7px 9px;font-size:12.5px;width:100%}
 .teamrow .rm{border:0;background:var(--crit-soft);color:var(--crit);border-radius:7px;padding:6px 10px;cursor:pointer;font-weight:700}
 .updstamp{font-size:11px;color:var(--ink-3)}
+/* dashboard cards */
+.dashcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:18px}
+.dashcard{display:flex;flex-direction:column;gap:10px;padding:20px}
+.dashcard .dico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand-strong)}
+.dashcard .dico svg{width:20px;height:20px}
+.dashcard h3{margin:0;font-size:15.5px}
+.dashcard .dnum{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--brand-strong);line-height:1}
+.dashcard p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.55;flex:1}
+.dashcard .btn{align-self:flex-start;margin-top:2px}
+.lawlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;flex:1}
+.lawlist a{display:flex;gap:8px;align-items:baseline;font-size:12.5px;color:var(--ink-2);text-decoration:none;line-height:1.45}
+.lawlist a:hover{color:var(--brand-strong)}
+.lawlist .doc{flex:0 0 auto;font-size:9.5px;font-weight:800;color:#fff;background:#C0392B;border-radius:4px;padding:1px 5px;letter-spacing:.03em}
 @media print{
   .side,.topbar,.actions,.noprint,.drawer,.scrim{display:none!important}
   .app{display:block}
@@ -1054,11 +1067,11 @@ function srcNote(j){
 views.stats=()=>{
   const v=el("div","view");
   v.appendChild((()=>{const h=el("div","pagehead");
-    h.innerHTML="<span class='eyebrow'><span class='en-only'>Public statistics</span><span class='dv'>ޢާންމު ތަފާސްހިސާބު</span></span>"+
-    "<h1><span class='en-only'>EIA submissions at a glance</span><span class='dv'>އީ.އައި.އޭ ހުށަހެޅުންތައް އެއް ނަޒަރުން</span></h1>"+
-    "<p class='lede en-only'>Live counts from ERA's published EIA repository, grouped by report name. Start a new submission from the sidebar, or browse every published report in the repository.</p>"+
-    "<p class='lede dv'>ERA އިން ޝާއިޢުކޮށްފައިވާ ރިޕޯޓްތަކުގެ ހިސާބުތައް.</p>";return h;})());
-  const holder=el("div","");holder.innerHTML="<p class='loadmsg'>Loading statistics…</p>";
+    h.innerHTML="<span class='eyebrow'><span class='en-only'>EIA Portal · ERA Maldives</span><span class='dv'>އީ.އައި.އޭ ޕޯޓަލް</span></span>"+
+    "<h1><span class='en-only'>Dashboard</span><span class='dv'>ޑޭޝްބޯޑް</span></h1>"+
+    "<p class='lede en-only'>The environmental impact assessment process in one place: live data from ERA's published repository, the legal framework, the registered consultants, and every published report.</p>"+
+    "<p class='lede dv'>ތިމާވެށީގެ އަސަރު ވަޒަންކުރުމުގެ މަސައްކަތް އެއް ތަނަކުން.</p>";return h;})());
+  const holder=el("div","");holder.innerHTML="<p class='loadmsg'>Loading…</p>";
   v.appendChild(holder);
   loadEraReports().then(j=>{
     const r=j.reports;
@@ -1069,28 +1082,84 @@ views.stats=()=>{
     const thisMonth=r.filter(x=>(x.d||"").startsWith(ym)).length;
     const monthName=now.toLocaleString("en",{month:"long"});
     holder.innerHTML="";
+
+    /* ---- the major data-overview card ---- */
+    const ov=el("div","");
     const kpis=el("div","kpis");
     [["received","EIAs received (all years)",j.count.toLocaleString()],
      ["review","Received in "+yy,thisYear],
      ["approved",monthName+" "+yy,thisMonth],
      ["revisions","Addenda filed",r.filter(x=>x.t==="Addendum").length]
     ].forEach(k=>{const t=el("div","kpi "+k[0]);t.innerHTML="<div class='kv tnum'>"+k[2]+"</div><div class='kl'>"+k[1]+"</div>";kpis.appendChild(t);});
-    holder.appendChild(kpis);
-    const grid2=el("div","statsgrid");
-    grid2.appendChild(section(null,"Types of EIAs — by project","މަޝްރޫޢުގެ ބާވަތުން",barList(countBy(r,x=>x.c))));
-    const right=el("div","");right.style.display="flex";right.style.flexDirection="column";right.style.gap="18px";
-    right.appendChild(section(null,"By document type","ލިޔުމުގެ ބާވަތުން",barList(countBy(r,x=>x.t))));
-    right.appendChild(section(null,"By year","އަހަރުން",barList(countBy(r,x=>x.y).sort((a,b)=>b.k.localeCompare(a.k)).slice(0,8))));
-    grid2.appendChild(right);
-    holder.appendChild(grid2);
+    ov.appendChild(kpis);
+    const grid2=el("div","statsgrid");grid2.style.marginTop="16px";
+    const left=el("div","");left.style.cssText="display:flex;flex-direction:column;gap:14px";
+    left.appendChild(el("h4",null,"<span class='en-only'>Types of EIAs — by project</span><span class='dv'>މަޝްރޫޢުގެ ބާވަތުން</span>"));
+    left.appendChild(barList(countBy(r,x=>x.c)));
+    const right=el("div","");right.style.cssText="display:flex;flex-direction:column;gap:14px";
+    right.appendChild(el("h4",null,"<span class='en-only'>By document type</span><span class='dv'>ލިޔުމުގެ ބާވަތުން</span>"));
+    right.appendChild(barList(countBy(r,x=>x.t)));
+    right.appendChild(el("h4",null,"<span class='en-only'>By year</span><span class='dv'>އަހަރުން</span>"));
+    right.appendChild(barList(countBy(r,x=>x.y).sort((a,b)=>b.k.localeCompare(a.k)).slice(0,6)));
+    grid2.appendChild(left);grid2.appendChild(right);
+    ov.appendChild(grid2);
+    ov.appendChild(srcNote(j));
+    holder.appendChild(section("▦","EIA data overview","ޑޭޓާގެ ޚުލާސާ",ov));
+
+    /* ---- laws & regulations · consultants registry · repository ---- */
+    const LAWS_BASE="https://www.era.gov.mv/assets/laws/";
+    const cards=el("div","dashcards");
+    const dico=svg=>"<div class='dico'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'>"+svg+"</svg></div>";
+    const law=(file,label)=>"<li><a href='"+LAWS_BASE+encodeURIComponent(file)+"' target='_blank' rel='noopener'><span class='doc'>PDF</span><span>"+label+"</span></a></li>";
+
+    const c1=el("div","section card dashcard");
+    c1.innerHTML=dico("<path d='M12 3v18M5 6l7-3 7 3M4 6l2 8a3 3 0 0 0 4 0l-2-8M18 6l2 8a3 3 0 0 1-4 0l2-8M8 21h8'/>")+
+      "<h3><span class='en-only'>Laws & regulations for EIAs</span><span class='dv'>ޤާނޫނާއި ގަވާއިދު</span></h3>"+
+      "<ul class='lawlist'>"+
+      law("Environment Protection and Preservation Act 493.pdf","Environment Protection & Preservation Act (4/93)")+
+      law("EIA Regulation 2012_Consolidated.pdf","EIA Regulations 2012 — consolidated (with amendments 1–8)")+
+      law("Code of Conduct for Environmental Consultants 2023.pdf","Code of Conduct for Environmental Consultants (2023)")+
+      law("Fine Policy Guideline (EIA Consulants and EIA Reviewers).pdf","Fine Policy Guideline — consultants & reviewers")+
+      law("EIA data collection guideline.pdf","EIA data collection guideline")+
+      "</ul>"+
+      "<a class='btn ghost' href='https://www.era.gov.mv/laws.html' target='_blank' rel='noopener' style='text-decoration:none'><span class='en-only'>All laws & guidelines →</span><span class='dv'>ހުރިހާ ޤާނޫނެއް →</span></a>";
+    cards.appendChild(c1);
+
+    const c2=el("div","section card dashcard");
+    c2.innerHTML=dico("<circle cx='9' cy='8' r='3.5'/><path d='M3 20c0-3.5 2.7-5.5 6-5.5s6 2 6 5.5'/><path d='m16.5 5.5 1.5 1.5 3-3.5'/><path d='M17 13.5c2.5.4 4 2 4 4.5'/>")+
+      "<h3><span class='en-only'>EIA Consultants Registry</span><span class='dv'>ކޮންސަލްޓަންޓުންގެ ރަޖިސްޓްރީ</span></h3>"+
+      "<div class='dnum' id='dashConsN'>—</div>"+
+      "<p><span class='en-only'>Consultants registered with ERA to carry out EIAs — verified entries with license expiry and a last-updated stamp on every record.</span><span class='dv'>ERA ގައި ރަޖިސްޓަރީވެފައިވާ ކޮންސަލްޓަންޓުން.</span></p>";
+    const b2=el("button","btn primary");b2.innerHTML="<span class='en-only'>Open the registry →</span><span class='dv'>ރަޖިސްޓްރީ ބަލާ →</span>";
+    b2.addEventListener("click",()=>{current="registry";go();});
+    c2.appendChild(b2);
+    cards.appendChild(c2);
+
+    const c3=el("div","section card dashcard");
+    c3.innerHTML=dico("<path d='M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Zm0 0a2 2 0 0 1 2-2h13'/><path d='M9 7h6'/>")+
+      "<h3><span class='en-only'>EIA Repository</span><span class='dv'>ރިޕޮޒިޓަރީ</span></h3>"+
+      "<div class='dnum'>"+j.count.toLocaleString()+"</div>"+
+      "<p><span class='en-only'>Every EIA report, addendum and related document published by ERA since "+esc(countBy(r,x=>x.y).map(x=>x.k).sort()[0]||"2007")+" — searchable by project, island and year.</span><span class='dv'>ERA އިން ޝާއިޢުކުރި ހުރިހާ ރިޕޯޓެއް.</span></p>";
+    const b3=el("button","btn primary");b3.innerHTML="<span class='en-only'>Browse reports →</span><span class='dv'>ރިޕޯޓްތައް ބަލާ →</span>";
+    b3.addEventListener("click",()=>{current="repository";go();});
+    c3.appendChild(b3);
+    cards.appendChild(c3);
+
+    holder.appendChild(cards);
+
+    /* registry count fills in from the live API (snapshot as fallback) */
+    fetch("/api/consultants").then(x=>{if(!x.ok)throw 0;return x.json();})
+      .catch(()=>fetch("consultants.json",{cache:"no-store"}).then(x=>x.json()))
+      .then(reg=>{const n=$("#dashConsN");if(n)n.textContent=(reg.consultants||[]).length;})
+      .catch(()=>{});
+
     const cta=el("div","actions");cta.style.justifyContent="flex-start";
     const b1=el("button","btn primary");b1.innerHTML="<span class='en-only'>Start a submission</span><span class='dv'>ހުށަހެޅުމެއް ފަށާ</span>";
     b1.addEventListener("click",()=>{current="application";go();});
-    const b2=el("button","btn ghost");b2.innerHTML="<span class='en-only'>Browse the repository →</span><span class='dv'>ރިޕޯޓްތައް ބަލާ →</span>";
-    b2.addEventListener("click",()=>{current="repository";go();});
-    cta.appendChild(b1);cta.appendChild(b2);
+    const b0=el("button","btn ghost");b0.innerHTML="<span class='en-only'>How the process works →</span><span class='dv'>ޕްރޮސެސް ހިނގާގޮތް →</span>";
+    b0.addEventListener("click",()=>{current="overview";go();});
+    cta.appendChild(b1);cta.appendChild(b0);
     holder.appendChild(cta);
-    holder.appendChild(srcNote(j));
   }).catch(e=>{holder.innerHTML="<p class='loadmsg'>Could not load statistics: "+esc(e.message)+"</p>";});
   return v;
 };
