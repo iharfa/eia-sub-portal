@@ -2220,7 +2220,6 @@ const NAV_APPLICANT=[
   {id:"report",en:"Report Submission",dv:"ރިޕޯޓް",step:"2"},
   {id:"addendum",en:"Addendum",dv:"އެޑެންޑަމް",step:"3"},
   {id:"manifest",en:"Find a submission",dv:"ހުށަހެޅުން ހޯދާ",step:"⎙"},
-  {id:"account",en:"My account",dv:"އެކައުންޓް",step:"◉"},
 ];
 const NAV_ADMIN=[
   {id:"dashboard",en:"Dashboard",dv:"ޑޭޝްބޯޑް",step:"▦"},
@@ -2302,12 +2301,12 @@ function renderAcct(){
   w.innerHTML="";
   if(!auth){
     const b=el("button","acctbtn");
-    b.innerHTML=iconUser()+"<span class='en-only'>My account</span><span class='dv'>އެކައުންޓް</span>";
+    b.innerHTML=iconUser()+"<span class='en-only'>Login / Register</span><span class='dv'>ވަދޭ / ރަޖިސްޓަރ</span>";
     b.addEventListener("click",()=>{current="account";go();});
     w.appendChild(b);
   }else{
     const b=el("button","acctbtn in");
-    b.innerHTML="<span class='dotv'></span>"+iconUser()+"<span class='nm'>"+esc(auth.user.name||auth.user.email)+"</span>";
+    b.innerHTML="<span class='dotv'></span>"+iconUser()+"<span class='nm'><span class='en-only'>My account</span><span class='dv'>އަހަރެންގެ އެކައުންޓް</span></span>";
     const pop=el("div","acctpop");
     pop.innerHTML="<div class='who'><b>"+esc(auth.user.name||auth.user.email)+"</b>"+(isStaffUser()?"ERA "+esc(auth.user.role):"Consultant")+"</div>";
     const mk=(label,fn,cls)=>{const x=el("button",cls||"");x.innerHTML=label;x.addEventListener("click",()=>{pop.classList.remove("open");fn();});pop.appendChild(x);};
