@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "html": "python src/build.py",
-    "db:init": "node scripts/init-db.mjs"
+    "db:init": "node scripts/init-db.mjs",
+    "db:seed-consultants": "node scripts/seed-consultants.mjs",
+    "staff": "node scripts/create-staff.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",

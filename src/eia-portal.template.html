@@ -486,6 +486,42 @@ table.queue tbody tr:last-child td{border-bottom:0}
 .repofilters input,.repofilters select{border:1px solid var(--line-strong);background:var(--surface);border-radius:9px;padding:8px 11px;font-size:13px}
 .repofilters input{flex:1;min-width:200px}
 .srcnote{font-size:11.5px;color:var(--ink-3);margin-top:10px}
+/* ---------- accounts, registry & issues ---------- */
+.sideacct{margin:10px 14px 4px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);padding:10px 12px;font-size:12px}
+.sideacct .who{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--ink);min-width:0}
+.sideacct .who .dotv{width:8px;height:8px;border-radius:50%;background:var(--ok);flex:0 0 auto}
+.sideacct .who .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sideacct .rolechip{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:var(--info-soft);color:var(--info);border-radius:999px;padding:2px 7px;flex:0 0 auto}
+.sideacct .abtns{display:flex;gap:6px;margin-top:9px}
+.sideacct .abtns button{flex:1;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);border-radius:7px;padding:6px 4px;font-size:11.5px;font-weight:600;cursor:pointer}
+.sideacct .abtns button:hover{border-color:var(--brand);color:var(--brand-strong)}
+.sideacct .signin{width:100%;border:0;background:var(--brand);color:#fff;border-radius:8px;padding:8px;font-size:12.5px;font-weight:700;cursor:pointer}
+.vbadge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 9px;text-transform:uppercase;letter-spacing:.04em}
+.vbadge.ok{background:var(--ok-soft);color:var(--ok)}
+.vbadge.pending{background:var(--amber-soft);color:var(--amber)}
+.vbadge.bad{background:var(--crit-soft);color:var(--crit)}
+.issue{border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);background:var(--amber-soft);border-radius:var(--radius-sm);padding:11px 13px;font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+.issue.resolved{border-color:color-mix(in srgb,var(--ok) 35%,transparent);background:var(--ok-soft)}
+.issue .ihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700}
+.issue .imeta{font-size:11px;color:var(--ink-3)}
+.issue .ireply{background:var(--surface);border:1px dashed var(--line-strong);border-radius:7px;padding:7px 9px;font-size:12px;white-space:pre-wrap}
+.issuelist{display:flex;flex-direction:column;gap:10px}
+.flagform{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.flagform input{border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;padding:6px 9px;font-size:12px}
+.flagform input.pg{width:74px}
+.flagform input.nt{flex:1;min-width:180px}
+.viewmodal{position:fixed;inset:0;z-index:90;background:color-mix(in srgb,var(--ink) 55%,transparent);display:flex;align-items:center;justify-content:center;padding:24px}
+.viewmodal .vm{background:var(--surface);border-radius:var(--radius);width:min(1060px,96vw);height:min(88vh,900px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+.viewmodal .vmh{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700}
+.viewmodal iframe{flex:1;border:0;width:100%;background:#525659}
+.authwrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+@media(max-width:860px){.authwrap{grid-template-columns:1fr}}
+.authwrap .field{margin-bottom:10px}
+.teamrow{display:grid;grid-template-columns:1.2fr 1fr .8fr auto;gap:8px;align-items:center;margin-bottom:8px}
+@media(max-width:720px){.teamrow{grid-template-columns:1fr}}
+.teamrow input{border:1px solid var(--line-strong);background:var(--surface);border-radius:7px;padding:7px 9px;font-size:12.5px;width:100%}
+.teamrow .rm{border:0;background:var(--crit-soft);color:var(--crit);border-radius:7px;padding:6px 10px;cursor:pointer;font-weight:700}
+.updstamp{font-size:11px;color:var(--ink-3)}
 @media print{
   .side,.topbar,.actions,.noprint,.drawer,.scrim{display:none!important}
   .app{display:block}
@@ -511,10 +547,12 @@ table.queue tbody tr:last-child td{border-bottom:0}
       <div class="grouplabel">Environmental Impact Assessment</div>
       <!-- nav buttons injected -->
     </nav>
+    <div class="sideacct" id="sideAcct"></div>
     <div class="foot">
       Demonstration system · bilingual (EN / ދިވެހި)<br>
       Environmental Regulatory Authority<br>
-      <span class="dv always">އެންވަޔަރަންމަންޓަލް ރެގިއުލޭޓަރީ އޮތޯރިޓީ</span>
+      <span class="dv always">އެންވަޔަރަންމަންޓަލް ރެގިއުލޭޓަރީ އޮތޯރިޓީ</span><br>
+      <a href="#staff" id="staffLink" style="color:inherit;opacity:.75">ERA staff sign-in</a>
     </div>
   </aside>
 
@@ -523,13 +561,6 @@ table.queue tbody tr:last-child td{border-bottom:0}
     <div class="topbar">
       <div class="casebar" id="casebar"></div>
       <div class="tools">
-        <div class="roletoggle" role="group" aria-label="View as">
-          <button id="roleApp" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Applicant</button>
-          <button id="roleOfficer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v13H4zM4 9h16M9 21h6"/></svg>ERA Officer</button>
-          <button id="roleAdmin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6z"/><path d="m9 12 2 2 4-4"/></svg>ERA Admin</button>
-        </div>
-        <button class="tbtn" id="hlBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.5 5 5.5.8-4 3.9.9 5.5L12 21l-4.9 2.6.9-5.5-4-3.9 5.5-.8Z"/></svg>Highlight shared data</button>
-        <button class="tbtn" id="drawerBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Data model</button>
         <div class="spacer" style="flex:1"></div>
         <div class="langtoggle" role="group" aria-label="Language">
           <button id="langEn" class="on">English</button>
@@ -565,31 +596,13 @@ table.queue tbody tr:last-child td{border-bottom:0}
 const eiaCase = {
   referenceNo:"DRAFT",
   stage:"report",
-  proponent:{
-    name:"Blue Atoll Developments Pvt Ltd",
-    address:"H. Fehivinaage, Ameenee Magu, Malé 20094",
-    phone:"+960 330 1188",
-    idOrReg:"C-0912/2019",
-    email:"projects@blueatoll.example.mv"
-  },
-  project:{
-    name:"Construction of a 60-villa tourist resort",
-    type:"Tourism — resort development",
-    island:"Bodufinolhu",
-    atoll:"Baa Atoll",
-    duration:"18 months",
-    permits:"Ministry of Tourism; Maldives Land & Survey Authority; Island/City Council"
-  },
-  consultant:{
-    name:"Reef Environmental Consultants Pvt Ltd",
-    licenseNo:"EIA-C/041",
-    licenseExpiry:"2027-03-31",
-    regNo:"CR-2021/118",
-    email:"eia@reefenv.example.mv"
-  },
+  proponent:{ name:"", address:"", phone:"", idOrReg:"", email:"" },
+  project:{ name:"", type:"", island:"", atoll:"", duration:"", permits:"" },
+  consultant:{ name:"", licenseNo:"", licenseExpiry:"", regNo:"", email:"" },
   screening:{ decision:"eia_required" },
-  report:{ name:"EIA for the proposed 60-villa resort, Bodufinolhu, Baa Atoll", regNo:"", feeTier:2, expedited:false },
+  report:{ name:"", regNo:"", feeTier:2, expedited:false },
   addendum:{ originalReportRegNo:"", originalConsultant:"", reason:"" },
+  team:[],   /* surveyors & other professionals supporting this EIA */
   documents:{}
 };
 
@@ -640,6 +653,29 @@ const staffKey=()=>staffKeys[role]||"";
 let submittedReports=[];   /* registry for the addendum selector */
 let reportsLoaded=false;
 
+/* ---- account (consultants sign in; ERA staff have officer/admin accounts) ---- */
+let auth=null;             /* {token, user:{id,email,name,role,consultant_id}} */
+try{auth=JSON.parse(localStorage.getItem("eiaAuth")||"null");}catch(e){}
+let myConsultant=null;     /* signed-in consultant's registry record (cached) */
+function saveAuth(a){auth=a;if(a)localStorage.setItem("eiaAuth",JSON.stringify(a));else localStorage.removeItem("eiaAuth");}
+function authHeaders(){return auth&&auth.token?{"authorization":"Bearer "+auth.token}:{};}
+const isStaffUser=()=>!!(auth&&auth.user&&(auth.user.role==="officer"||auth.user.role==="admin"));
+async function loadMe(force){
+  if(myConsultant&&!force)return myConsultant;
+  if(!auth)return null;
+  const r=await fetch("/api/auth",{headers:authHeaders()}).catch(()=>null);
+  if(!r)return null;
+  if(r.status===401){saveAuth(null);myConsultant=null;applyRole();if(["dashboard","review","consultants"].includes(current))current="stats";syncAll();return null;}
+  const j=await r.json().catch(()=>({}));myConsultant=j.consultant||null;
+  if(j.user){auth.user=j.user;saveAuth(auth);}
+  return myConsultant;
+}
+async function doLogout(){
+  try{await fetch("/api/auth",{method:"POST",headers:Object.assign({"content-type":"application/json"},authHeaders()),body:JSON.stringify({action:"logout"})});}catch(e){}
+  saveAuth(null);myConsultant=null;applyRole();
+  current="stats";syncAll();go();
+}
+
 const STATUS={received:["Received","ލިބިފައި"],review:["Under review","ބަލަމުން"],revisions:["Revisions requested","އިޞްލާޙަށް"],approved:["Approved","ފާސްކުރި"],rejected:["Rejected","ބޭރުކުރި"]};
 const DECISION_LABELS={eia_required:"1 · EIA report required",prelim_study:"2 · Preliminary environmental study",mgmt_plan:"3 · Environmental management plan",proceed:"4 · No significant impact — may proceed",proceed_conditions:"5 · Proceed with mitigation conditions"};
 
@@ -668,20 +704,24 @@ function askAdminKey(msg){
   if(k!=null){staffKeys[role==="officer"?"officer":"admin"]=k.trim();localStorage.setItem(store,k.trim());}
   return staffKey();
 }
+function staffHeaders(){
+  const h=authHeaders();
+  if(staffKey())h["x-admin-key"]=staffKey();
+  return h;
+}
 async function adminFetch(path,opts={}){
-  if(!staffKey())askAdminKey();
-  opts.headers=Object.assign({},opts.headers,{"x-admin-key":staffKey()});
+  opts.headers=Object.assign({},opts.headers,staffHeaders());
   let r=await fetch(path,opts);
-  if(r.status===401){
-    askAdminKey("Key rejected. Enter the correct key:");
-    opts.headers["x-admin-key"]=staffKey();
+  if(r.status===401&&!isStaffUser()){
+    askAdminKey("Sign in with an ERA staff account (top right), or enter the legacy access key:");
+    opts.headers=Object.assign({},opts.headers,staffHeaders());
     r=await fetch(path,opts);
   }
   return r;
 }
 async function patchSubmission(id,body){
   const r=await adminFetch("/api/submission",{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({id},body))});
-  if(!r.ok){alert("Update failed ("+r.status+")");return null;}
+  if(!r.ok){const j=await r.json().catch(()=>({}));alert(j.error||("Update failed ("+r.status+")"));return null;}
   return r.json();
 }
 async function loadReports(){
@@ -689,7 +729,7 @@ async function loadReports(){
   reportsLoaded=true;
 }
 async function openManifest(ref){
-  const r=await fetch("/api/submission?ref="+encodeURIComponent(ref));
+  const r=await fetch("/api/submission?ref="+encodeURIComponent(ref),{headers:authHeaders()});
   if(!r.ok){alert("Could not find submission "+ref);return false;}
   manifestData=await r.json();
   try{history.replaceState(null,"","#ref="+encodeURIComponent(ref));}catch(e){}
@@ -776,6 +816,34 @@ function consultantFields(){
     field({en:"Consultant registration no.",dv:"ކޮންސަލްޓަންޓް ރަޖިސްޓްރޭޝަން ނަންބަރު",path:"consultant.regNo",shared:1}),
     field({en:"Email",dv:"އީމެއިލް",type:"email",path:"consultant.email",shared:1}),
   ]);
+}
+/* surveyors & other supporting professionals — travel with the case record */
+function teamCard(){
+  const wrap=el("div","");
+  const intro=el("p","updstamp");intro.style.marginTop="0";
+  intro.innerHTML="<span class='en-only'>Everyone who worked on this EIA besides the lead consultant — surveyors, marine biologists, engineers, translators. Each name is stored with the submission record.</span><span class='dv'>މި އީ.އައި.އޭ ގައި މަސައްކަތްކުރި އެހެން ފަރާތްތައް — ސާރވޭޔަރުން، ފަދަ ފަންނީ ފަރާތްތައް.</span>";
+  wrap.appendChild(intro);
+  const list=el("div","");
+  function renderTeam(){
+    list.innerHTML="";
+    eiaCase.team.forEach((m,i)=>{
+      const r=el("div","teamrow");
+      const nm=el("input");nm.placeholder="Full name";nm.value=m.name||"";nm.addEventListener("input",()=>{m.name=nm.value;renderJson();});
+      const rl=el("input");rl.placeholder="Role — e.g. surveyor, marine biologist";rl.value=m.role||"";rl.addEventListener("input",()=>{m.role=rl.value;renderJson();});
+      const rg=el("input");rg.placeholder="Registration / permit no. (if any)";rg.value=m.regNo||"";rg.addEventListener("input",()=>{m.regNo=rg.value;renderJson();});
+      const rm=el("button","rm");rm.textContent="×";rm.title="Remove";
+      rm.addEventListener("click",()=>{eiaCase.team.splice(i,1);renderTeam();renderJson();});
+      r.appendChild(nm);r.appendChild(rl);r.appendChild(rg);r.appendChild(rm);
+      list.appendChild(r);
+    });
+  }
+  renderTeam();
+  wrap.appendChild(list);
+  const add=el("button","tbtn noprint");
+  add.innerHTML="+ <span class='en-only'>Add team member</span><span class='dv'>މީހަކު އިތުރުކުރޭ</span>";
+  add.addEventListener("click",()=>{eiaCase.team.push({name:"",role:"",regNo:""});renderTeam();});
+  wrap.appendChild(add);
+  return section("•","Project team & supporting professionals","ޓީމާއި އެހީތެރި ފަންނީ ފަރާތްތައް",wrap,sharedBadge());
 }
 function signatureRow(who,whoDv){
   return grid([
@@ -904,6 +972,11 @@ function footerActions(primaryEn,primaryDv,formType){
   return a;
 }
 async function submitForm(type,btn){
+  if(!auth){
+    alert("Submissions are tied to your consultant account — sign in (or register) first.\nYour draft is kept while you do.");
+    localStorage.setItem("eiaDraft",JSON.stringify({case:eiaCase,checklist:checklistState}));
+    current="account";go();return;
+  }
   const errs=[];const files=[];
   (FORM_DOCS[type]||[]).forEach(id=>{
     const c=DOC_CATS[id];const fs=eiaCase.documents[id]||[];
@@ -927,7 +1000,7 @@ async function submitForm(type,btn){
       checklist:type==="report"?checklistState:null,
       feeTier:type==="report"?eiaCase.report.feeTier:null,
       expedited:type==="report"?!!eiaCase.report.expedited:false};
-    const r=await fetch("/api/submissions",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+    const r=await fetch("/api/submissions",{method:"POST",headers:Object.assign({"content-type":"application/json"},authHeaders()),body:JSON.stringify(payload)});
     const j=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(j.error||("HTTP "+r.status));
     localStorage.removeItem("eiaDraft");
@@ -1140,6 +1213,7 @@ views.application=()=>{
   v.appendChild(section("1","Proponent information","އެދިޔާރާ ބެހޭ މަޢުލޫމާތު",proponentFields(),sharedBadge()));
   v.appendChild(section("2","Project introduction","މަޝްރޫޢު ތަޢާރަފު",projectFields(),sharedBadge()));
   v.appendChild(section("3","EIA consultant","ކޮންސަލްޓަންޓް",consultantFields(),sharedBadge()));
+  v.appendChild(teamCard());
   v.appendChild(section("4","Required attachments","ހުށަހަޅަންޖެހޭ ތަކެތި",[docGroups(FORM_DOCS.application),
     (()=>{const n=el("div","note");n.innerHTML=iconInfo()+"<span class='en-only'>Request a scoping meeting before submitting. Every file needs a typed description of its contents.</span><span class='dv'> ސްކޯޕިންގ ބައްދަލުވުމަކަށް އެދޭ. ކޮންމެ ފައިލަކަށް ތަފްޞީލެއް ލިޔޭ.</span>";return n;})()
   ]));
@@ -1163,6 +1237,7 @@ views.report=()=>{
   v.appendChild((()=>{const n=el("div","note");n.innerHTML=iconInfo()+"<span class='en-only'>The checklist is the consultant's self-declaration of what the report contains and on which page. It is stored with the submission and shown to the ERA reviewer.</span><span class='dv'> ޗެކްލިސްޓަކީ ރިޕޯޓްގައި ހިމެނޭ ބައިތަކުގެ ކޮންސަލްޓަންޓްގެ އިޤްރާރެއް.</span>";return n;})());
   v.appendChild(section("3","EIA report documents","ރިޕޯޓް ލިޔެކިޔުން",docGroups(["report","nonTech","drawings","supporting"])));
   v.appendChild(section("4","Raw data files","ރޯ ޑޭޓާ ފައިލްތައް",rawDataGroups()));
+  v.appendChild(teamCard());
   v.appendChild(expediteCard("5"));
   v.appendChild(section("6","Declarations","އިޤްރާރު",signatureRow("Consultant signature","ކޮންސަލްޓަންޓްގެ ސޮއި")));
   v.appendChild(footerActions("Submit report","ރިޕޯޓް ހުށަހަޅާ","report"));
@@ -1218,6 +1293,7 @@ views.addendum=()=>{
     field({en:"Reason for the addendum / description of the change",dv:"އެޑެންޑަމް ހުށަހަޅާ ސަބަބު / ބަދަލުގެ ތަފްޞީލު",path:"addendum.reason",type:"textarea",col2:1,placeholder:"Describe what has changed since the approved report…"}),
   ]),sharedBadge()));
   v.appendChild(section("4","Consultant preparing the addendum","އެޑެންޑަމް ތައްޔާރުކުރާ ކޮންސަލްޓަންޓް",consultantFields(),sharedBadge()));
+  v.appendChild(teamCard());
   v.appendChild(section("5","Addendum documents & revised data","އެޑެންޑަމް ލިޔެކިޔުމާއި ޑޭޓާ",docGroups(FORM_DOCS.addendum)));
   v.appendChild(section("6","Declaration","އިޤްރާރު",signatureRow("Consultant signature","ކޮންސަލްޓަންޓްގެ ސޮއި")));
   v.appendChild(footerActions("Submit addendum","އެޑެންޑަމް ހުށަހަޅާ","addendum"));
@@ -1266,8 +1342,20 @@ views.manifest=()=>{
     metaRow("Proponent",esc(p.name||"—"))+
     metaRow("Project",esc(pr.name||"—"))+
     metaRow("Location",esc((pr.island||"—")+", "+(pr.atoll||"—")))+
-    metaRow("Consultant",esc(co.name||"—"));
+    metaRow("Consultant",esc(co.name||"—"))+
+    (Array.isArray(cd.team)&&cd.team.filter(t=>t&&t.name).length?metaRow("Project team",cd.team.filter(t=>t&&t.name).map(t=>esc(t.name)+(t.role?" ("+esc(t.role)+")":"")).join(", ")):"");
   v.appendChild(section("1","Submission record","ހުށަހެޅުމުގެ ރެކޯޑް",meta));
+
+  /* live status timeline + flagged issues — shown to the submitting account and ERA */
+  if(m.viewer==="owner"||m.audit){
+    v.appendChild(section("•","Where this submission is","ހުށަހެޅުން އޮތް ހިސާބު",statusTimeline(m)));
+    const ib=issuesBlock(m,{canReply:m.viewer==="owner"});
+    if(ib)v.appendChild(ib);
+    else if(m.status==="review"||m.status==="received"){
+      const n=el("div","note");n.innerHTML=iconInfo()+"<span class='en-only'>No issues flagged by ERA so far. Anything ERA needs resolved will appear here, and the reviewer sees your replies.</span>";
+      v.appendChild(n);
+    }
+  }
 
   const files=m.files||[];
   const byCat={};files.forEach(f=>{(byCat[f.category]=byCat[f.category]||[]).push(f);});
@@ -1357,11 +1445,11 @@ views.dashboard=()=>{
       holder.appendChild(kpis);
       const tw=el("div","tablewrap");
       const tbl=el("table","queue");
-      tbl.innerHTML="<thead><tr><th>Ref</th><th>Type</th><th>Proponent</th><th>Project</th><th>Location</th><th>Files</th><th>Submitted</th><th>Officer</th><th>Status</th></tr></thead>";
+      tbl.innerHTML="<thead><tr><th>Ref</th><th>Type</th><th>Proponent</th><th>Project</th><th>Location</th><th>Files</th><th>Submitted</th><th>Officer</th><th>Issues</th><th>Status</th></tr></thead>";
       const tb=el("tbody");
-      if(!rows.length){const tr=el("tr");tr.innerHTML="<td colspan='9' style='padding:24px;text-align:center;color:var(--ink-3)'>No submissions yet — they appear here the moment an applicant submits.</td>";tb.appendChild(tr);}
+      if(!rows.length){const tr=el("tr");tr.innerHTML="<td colspan='10' style='padding:24px;text-align:center;color:var(--ink-3)'>No submissions yet — they appear here the moment an applicant submits.</td>";tb.appendChild(tr);}
       rows.forEach(s=>{const tr=el("tr");
-        tr.innerHTML="<td><span class='qref'>"+esc(s.ref)+"</span>"+(s.expedited?" <span class='expchip'>⚡</span>":"")+"</td><td><span class='typechip'>"+esc(s.type)+"</span></td><td>"+esc(s.proponent||"—")+"</td><td>"+esc(s.project||"—")+"</td><td>"+esc(s.loc||"—")+"</td><td class='tnum'>"+s.file_count+" · "+fmtSize(s.total_bytes)+"</td><td class='tnum'>"+fmtDate(s.created_at)+"</td><td>"+esc(s.officer)+"</td><td><span class='st "+esc(s.status)+"'>"+(STATUS[s.status]||["?"])[0]+"</span></td>";
+        tr.innerHTML="<td><span class='qref'>"+esc(s.ref)+"</span>"+(s.expedited?" <span class='expchip'>⚡</span>":"")+"</td><td><span class='typechip'>"+esc(s.type)+"</span></td><td>"+esc(s.proponent||"—")+"</td><td>"+esc(s.project||"—")+"</td><td>"+esc(s.loc||"—")+"</td><td class='tnum'>"+s.file_count+" · "+fmtSize(s.total_bytes)+"</td><td class='tnum'>"+fmtDate(s.created_at)+"</td><td>"+esc(s.officer)+"</td><td class='tnum'>"+(s.open_issues?"<span class='vbadge pending'>"+s.open_issues+"</span>":"—")+"</td><td><span class='st "+esc(s.status)+"'>"+(STATUS[s.status]||["?"])[0]+"</span></td>";
         tr.addEventListener("click",()=>{selectedRef=s.ref;current="review";go();});
         tb.appendChild(tr);});
       tbl.appendChild(tb);tw.appendChild(tbl);
@@ -1435,11 +1523,61 @@ function renderReview(holder,m){
       it.appendChild(row);
       const d=el("div","desc-ro");d.textContent=f.description||"(no description)";
       it.appendChild(d);
+      /* review the document in the browser + flag an issue pinned to it */
+      const tools=el("div","flagform noprint");
+      if(f.blob_url){
+        const vb=el("button","tbtn");vb.textContent="View in browser";
+        vb.addEventListener("click",()=>openViewer(f.blob_url,f.filename));
+        tools.appendChild(vb);
+      }
+      const fb=el("button","tbtn");fb.textContent="⚑ Flag issue";
+      const ff=el("div","flagform");ff.style.display="none";ff.style.width="100%";
+      const pg=el("input","pg");pg.placeholder="Page";
+      const nt=el("input","nt");nt.placeholder="What needs to be fixed in this document…";
+      const send=el("button","btn revise");send.textContent="Flag";
+      send.addEventListener("click",async()=>{
+        if(!nt.value.trim()){nt.focus();return;}
+        const r=await patchSubmission(m.id,{issue:{fileId:f.id,page:pg.value,note:nt.value}});
+        if(r){reviewData=Object.assign({},m,{issues:r.issues});renderReview(holder,reviewData);}
+      });
+      ff.appendChild(pg);ff.appendChild(nt);ff.appendChild(send);
+      fb.addEventListener("click",()=>{ff.style.display=ff.style.display==="none"?"flex":"none";nt.focus();});
+      tools.appendChild(fb);
+      it.appendChild(tools);it.appendChild(ff);
       body.appendChild(it);
     });
     g.appendChild(body);fw.appendChild(g);
   });
   main.appendChild(section("2","Documents & declared contents","ލިޔެކިޔުމާއި ތަފްޞީލު",fw));
+
+  if(Array.isArray(cd.team)&&cd.team.filter(t=>t&&t.name).length){
+    const tm=el("div","metalist");
+    tm.innerHTML=cd.team.filter(t=>t&&t.name).map(t=>metaRow(esc(t.role||"Team member"),esc(t.name)+(t.regNo?" · "+esc(t.regNo):""))).join("");
+    main.appendChild(section("•","Project team & supporting professionals","ޓީމް",tm));
+  }
+
+  /* issues: everything flagged on this submission, plus a general (not file-specific) flag */
+  const iwrap=el("div","");
+  const openN=(m.issues||[]).filter(i=>i.status==="open").length;
+  if((m.issues||[]).length){
+    const lst=el("div","issuelist");
+    m.issues.forEach(i=>lst.appendChild(issueNode(i,m,{canResolve:true})));
+    iwrap.appendChild(lst);
+  }else{
+    const p=el("p","updstamp");p.textContent="Nothing flagged yet. Use “⚑ Flag issue” on a document, or flag a general issue below — the consultant sees it immediately on their dashboard.";
+    iwrap.appendChild(p);
+  }
+  const gf=el("div","flagform");
+  const gnote=el("input","nt");gnote.placeholder="Flag a general issue with this submission…";
+  const gsend=el("button","btn revise");gsend.textContent="⚑ Flag issue";
+  gsend.addEventListener("click",async()=>{
+    if(!gnote.value.trim()){gnote.focus();return;}
+    const r=await patchSubmission(m.id,{issue:{note:gnote.value}});
+    if(r){reviewData=Object.assign({},m,{issues:r.issues});renderReview(holder,reviewData);}
+  });
+  gf.appendChild(gnote);gf.appendChild(gsend);
+  iwrap.appendChild(gf);
+  main.appendChild(section("!","Issues — "+openN+" open","މައްސަލަތައް",iwrap));
 
   if(Array.isArray(m.checklist)&&m.checklist.length){
     const inc=m.checklist.filter(c=>c.included).length;
@@ -1487,6 +1625,13 @@ function reviewAside(m){
     b.addEventListener("click",async()=>{const r=await patchSubmission(m.id,{status});if(r){m.status=status;reviewData=m;renderTopBar();go();}});
     return b;};
   if(role==="admin"){
+    const openN=(m.issues||[]).filter(i=>i.status==="open").length;
+    const unver=(m.files||[]).filter(f=>!f.verified).length;
+    if(openN||unver){
+      const g=el("p");g.style.cssText="font-size:11.5px;color:var(--amber);margin:0 0 10px;line-height:1.5;font-weight:600";
+      g.textContent="Approval is blocked until "+[openN?openN+" open issue(s) are resolved":null,unver?unver+" file(s) are verified":null].filter(Boolean).join(" and ")+".";
+      ac.appendChild(g);
+    }
     ac.appendChild(mk("approve","Approve","ފާސްކުރޭ","approved"));
     ac.appendChild(mk("revise","Request revisions","އިޞްލާޙަށް","revisions"));
     ac.appendChild(mk("reject","Reject","ބޭރުކުރޭ","rejected"));
@@ -1547,51 +1692,470 @@ function gateNote(){const n=el("div","note");n.style.background="var(--info-soft
   n.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' style='color:var(--info)'><circle cx='12' cy='12' r='9'/><path d='M12 8v.01M11 12h1v4h1'/></svg><span class='en-only'>This form can be submitted on its own — a screening is <b>not required first</b>. File it directly when an EIA is already known to be required.</span><span class='dv'> މި ފޯމު ވަކިން ހުށަހެޅިދާނެ — ސްކްރީނިންގ ބޭނުމެއް ނުވޭ. އީ.އައި.އޭ ބޭނުންވާކަން ކުރިންވެސް އެނގޭނަމަ ސީދާ ހުށަހަޅާ.</span>";
   return n;}
 
+/* ---------------- shared: document viewer, issues, timeline ---------------- */
+function openViewer(url,filename){
+  const ext=(String(filename).split(".").pop()||"").toLowerCase();
+  if(!["pdf","jpg","jpeg","png"].includes(ext)){window.open(url,"_blank","noopener");return;}
+  const wrap=el("div","viewmodal");
+  const vm=el("div","vm");
+  const h=el("div","vmh");
+  h.innerHTML="<span style='flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+esc(filename)+"</span>";
+  const ext2=el("a","tbtn");ext2.href=url;ext2.target="_blank";ext2.rel="noopener";ext2.textContent="Open in new tab";
+  const x=el("button","tbtn");x.textContent="Close ×";
+  x.addEventListener("click",()=>wrap.remove());
+  h.appendChild(ext2);h.appendChild(x);
+  vm.appendChild(h);
+  const fr=el("iframe");fr.src=url;vm.appendChild(fr);
+  wrap.appendChild(vm);
+  wrap.addEventListener("click",e=>{if(e.target===wrap)wrap.remove();});
+  document.body.appendChild(wrap);
+}
+function issueNode(i,m,opts){
+  const fileOf=id=>((m.files||[]).find(f=>f.id===id)||{}).filename;
+  const d=el("div","issue"+(i.status==="resolved"?" resolved":""));
+  const head=el("div","ihead");
+  head.innerHTML=(i.status==="resolved"?"<span class='vbadge ok'>Resolved</span>":"<span class='vbadge pending'>Open</span>")+
+    "<span>"+esc(i.note)+"</span>";
+  d.appendChild(head);
+  const meta=el("div","imeta");
+  meta.textContent=[i.file_id&&fileOf(i.file_id)?("File: "+fileOf(i.file_id)):null,i.page?("Page "+i.page):null,
+    "Flagged by "+(i.raised_by||"ERA")+" · "+fmtDate(i.created_at),
+    i.status==="resolved"?("Resolved "+fmtDate(i.resolved_at)+(i.resolution?" — "+i.resolution:"")):null].filter(Boolean).join(" · ");
+  d.appendChild(meta);
+  if(i.reply){const rp=el("div","ireply");rp.textContent="Consultant reply: "+i.reply;d.appendChild(rp);}
+  if(opts&&opts.canReply&&i.status==="open"){
+    const f=el("div","flagform");
+    const inp=el("input","nt");inp.placeholder=i.reply?"Update your reply…":"Reply to ERA — how you are addressing this…";inp.value=i.reply||"";
+    const b=el("button","btn ghost");b.textContent="Send reply";
+    b.addEventListener("click",async()=>{
+      const r=await fetch("/api/submission",{method:"PATCH",headers:Object.assign({"content-type":"application/json"},authHeaders()),body:JSON.stringify({id:m.id,replyIssue:i.id,reply:inp.value})});
+      if(r.ok){i.reply=inp.value;b.textContent="Sent ✓";}else{const j=await r.json().catch(()=>({}));alert(j.error||"Could not send reply");}
+    });
+    f.appendChild(inp);f.appendChild(b);d.appendChild(f);
+  }
+  if(opts&&opts.canResolve&&i.status==="open"){
+    const f=el("div","flagform");
+    const inp=el("input","nt");inp.placeholder="Resolution note (optional)";
+    const b=el("button","btn approve");b.textContent="Mark resolved";
+    b.addEventListener("click",async()=>{
+      const r=await patchSubmission(m.id,{resolveIssue:i.id,resolution:inp.value});
+      if(r){m.issues=r.issues||m.issues;i.status="resolved";i.resolution=inp.value;go();}
+    });
+    f.appendChild(inp);f.appendChild(b);d.appendChild(f);
+  }
+  return d;
+}
+function issuesBlock(m,opts){
+  const issues=m.issues||[];
+  if(!issues.length)return null;
+  const open=issues.filter(i=>i.status==="open").length;
+  const w=el("div","issuelist");
+  issues.forEach(i=>w.appendChild(issueNode(i,m,opts)));
+  return section("!","Issues flagged by ERA — "+open+" open","ERA އިން ފާހަގަކުރި މައްސަލަތައް",w);
+}
+function statusTimeline(m){
+  const evts=(m.audit||[]).slice().reverse();
+  const at=a=>{const e=evts.find(x=>x.action==="status"&&x.detail===a);return e?fmtDate(e.at):null;};
+  const done=(m.status==="approved"||m.status==="rejected");
+  const steps=[
+    ["Submitted",fmtDate(m.created_at),"done"],
+    ["Under review",at("review")||(m.status==="review"?"in progress":done?"done":"pending"),(m.status==="review")?"now":(at("review")||done?"done":"todo")],
+  ];
+  if(m.status==="revisions"||at("revisions"))steps.push(["Revisions requested",at("revisions")||"now",m.status==="revisions"?"now":"done"]);
+  steps.push(["Decision",done?((STATUS[m.status]||["?"])[0]+" · "+fmtDate(m.updated_at)):"pending",done?"done":"todo"]);
+  const tl=el("div","timeline");
+  steps.forEach(st=>{const d=el("div","tl "+st[2]);d.innerHTML="<span class='dot'></span><div class='tc'><div class='t'>"+st[0]+"</div><div class='d'>"+st[1]+"</div></div>";tl.appendChild(d);});
+  return tl;
+}
+
+/* ---------------- account: sign in / register / consultant dashboard ---------------- */
+function authField(en,type,val){
+  const w=el("div","field");
+  w.innerHTML="<div class='lab'><span class='en'><span class='en-only'>"+en+"</span></span></div>";
+  const c=el("div","ctl");const i=el("input");i.type=type||"text";if(val)i.value=val;
+  c.appendChild(i);w.appendChild(c);w.input=i;
+  return w;
+}
+views.account=()=>{
+  const v=el("div","view");
+  if(!auth){
+    v.appendChild(formHead("Consultant account","ކޮންސަލްޓަންޓް އެކައުންޓް","Consultant sign in","ކޮންސަލްޓަންޓުން ވަދޭ"));
+    const wrap=el("div","authwrap");
+    /* sign in */
+    const se=authField("Email or username"),sp=authField("Password","password");
+    const sb=el("button","btn primary");sb.textContent="Sign in";
+    const smsg=el("p","updstamp");
+    const staffNote=el("p","updstamp");staffNote.style.marginTop="12px";
+    staffNote.innerHTML="ERA staff? <a href='#staff' style='color:var(--brand-strong)'>Sign in to the review console here</a>.";
+    sb.addEventListener("click",async()=>{
+      sb.disabled=true;smsg.textContent="Signing in…";
+      const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"login",email:se.input.value,password:sp.input.value})});
+      const j=await r.json().catch(()=>({}));sb.disabled=false;
+      if(!r.ok){smsg.textContent=j.error||"Sign-in failed";return;}
+      saveAuth(j);myConsultant=null;applyRole();syncAll();
+      current=isStaffUser()?"dashboard":"account";go();
+    });
+    sp.input.addEventListener("keydown",e=>{if(e.key==="Enter")sb.click();});
+    wrap.appendChild(section(null,"Sign in","ވަދޭ",[se,sp,sb,smsg,staffNote]));
+    /* register */
+    const rn=authField("Full name / lead consultant"),re=authField("Email","email"),
+          rc=authField("Company / consultancy (optional)"),rp2=authField("Phone"),
+          rw=authField("Password (min 8 characters)","password");
+    const rb=el("button","btn primary");rb.textContent="Create consultant account";
+    const rmsg=el("p","updstamp");
+    rb.addEventListener("click",async()=>{
+      rb.disabled=true;rmsg.textContent="Creating account…";
+      const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"register",name:rn.input.value,email:re.input.value,company:rc.input.value,phone:rp2.input.value,password:rw.input.value})});
+      const j=await r.json().catch(()=>({}));rb.disabled=false;
+      if(!r.ok){rmsg.textContent=j.error||"Registration failed";return;}
+      saveAuth(j);myConsultant=null;applyRole();syncAll();current="account";go();
+    });
+    const note=el("p","updstamp");
+    note.innerHTML="If your email is already on ERA's consultant registry, your account links to that entry automatically. New registrations are created as <b>pending</b> until ERA verifies them.";
+    wrap.appendChild(section(null,"New consultant? Register","ރަޖިސްޓަރ ކުރޭ",[rn,re,rc,rp2,rw,rb,rmsg,note]));
+    v.appendChild(wrap);
+    return v;
+  }
+  /* signed-in dashboard */
+  v.appendChild(formHead("My account","އަހަރެންގެ އެކައުންޓް",esc(auth.user.name||auth.user.email),"ކޮންސަލްޓަންޓް ޑޭޝްބޯޑް"));
+
+  if(isStaffUser()){
+    const n=el("div","note");
+    n.innerHTML=iconInfo()+"<span>You are signed in as ERA staff ("+esc(auth.user.role)+") — the <b>ERA Review Console</b> section is in the sidebar. "+(auth.user.consultant_id?"This account also has a consultant profile, shown below.":"")+"</span>";
+    v.appendChild(n);
+    if(!auth.user.consultant_id)return v;
+  }
+
+  /* profile */
+  const profHolder=el("div","");profHolder.innerHTML="<p class='loadmsg'>Loading your registry record…</p>";
+  v.appendChild(profHolder);
+  loadMe(true).then(c=>{
+    profHolder.innerHTML="";
+    if(!c){profHolder.innerHTML="<p class='loadmsg'>No registry record linked to this account.</p>";return;}
+    const badge=c.verified?"<span class='vbadge ok'>ERA-verified</span>":(c.status==="pending"?"<span class='vbadge pending'>Pending ERA verification</span>":"<span class='vbadge bad'>"+esc(c.status)+"</span>");
+    const head=el("div","metalist");
+    head.innerHTML=metaRow("Registry status",badge)+
+      (c.reg_no?metaRow("Registration no.",esc(c.reg_no)):"")+
+      (c.category?metaRow("Category",esc(c.category)):"")+
+      (c.license_expiry?metaRow("License expiry",fmtDate(c.license_expiry)+(new Date(c.license_expiry)<new Date()?" <span class='vbadge bad'>expired</span>":"")):"")+
+      metaRow("Last updated",fmtDate(c.last_updated_at)+(c.updated_by?" · by "+esc(c.updated_by):""));
+    const fields=[["company","Company / consultancy"],["address","Address"],["phone","Phone"],["qualifications","Qualifications"],["specialties","Specialties (e.g. marine surveys, hydrology)"]];
+    const inputs={};
+    const g=el("div","grid");
+    fields.forEach(([k,lab])=>{
+      const w=el("div","field"+(k==="qualifications"||k==="specialties"?" col2":""));
+      w.innerHTML="<div class='lab'><span class='en'><span class='en-only'>"+lab+"</span></span></div>";
+      const ctl=el("div","ctl");const i=el("input");i.value=c[k]||"";inputs[k]=i;ctl.appendChild(i);w.appendChild(ctl);g.appendChild(w);
+    });
+    const sv=el("button","btn ghost");sv.textContent="Save profile";
+    const svm=el("span","updstamp");
+    sv.addEventListener("click",async()=>{
+      const body={};fields.forEach(([k])=>body[k]=inputs[k].value);
+      const r=await fetch("/api/auth",{method:"PATCH",headers:Object.assign({"content-type":"application/json"},authHeaders()),body:JSON.stringify(body)});
+      if(r.ok){svm.textContent="Saved ✓ — contact/professional details update instantly; ERA-controlled fields (reg no, status, expiry) can only be changed by ERA.";myConsultant=null;}
+      else svm.textContent="Save failed";
+    });
+    const foot=el("div","");foot.style.cssText="display:flex;align-items:center;gap:12px;margin-top:6px";foot.appendChild(sv);foot.appendChild(svm);
+    profHolder.appendChild(section("1","My registry profile","ރަޖިސްޓްރީ ޕްރޮފައިލް",[head,g,foot]));
+  });
+
+  /* my submissions */
+  const subsHolder=el("div","");subsHolder.innerHTML="<p class='loadmsg'>Loading your submissions…</p>";
+  v.appendChild(subsHolder);
+  fetch("/api/submissions?mine=1",{headers:authHeaders()})
+    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .then(rows=>{
+      subsHolder.innerHTML="";
+      const tw=el("div","tablewrap");
+      const tbl=el("table","queue");
+      tbl.innerHTML="<thead><tr><th>Ref</th><th>Type</th><th>Project</th><th>Submitted</th><th>Status</th><th>Open issues</th></tr></thead>";
+      const tb=el("tbody");
+      if(!rows.length){const tr=el("tr");tr.innerHTML="<td colspan='6' style='padding:24px;text-align:center;color:var(--ink-3)'>Nothing submitted from this account yet. Your screenings, applications, reports and addendums will appear here with their live status.</td>";tb.appendChild(tr);}
+      rows.forEach(s=>{const tr=el("tr");
+        tr.innerHTML="<td><span class='qref'>"+esc(s.ref)+"</span>"+(s.expedited?" <span class='expchip'>⚡</span>":"")+"</td><td><span class='typechip'>"+esc(s.type)+"</span></td><td>"+esc(s.project||"—")+"</td><td class='tnum'>"+fmtDate(s.created_at)+"</td><td><span class='st "+esc(s.status)+"'>"+(STATUS[s.status]||["?"])[0]+"</span></td><td class='tnum'>"+(s.open_issues?"<span class='vbadge pending'>"+s.open_issues+" open</span>":"—")+"</td>";
+        tr.addEventListener("click",()=>openManifest(s.ref));
+        tb.appendChild(tr);});
+      tbl.appendChild(tb);tw.appendChild(tbl);
+      subsHolder.appendChild(section("2","My submissions — live status","އަހަރެންގެ ހުށަހެޅުންތައް",tw));
+    })
+    .catch(e=>{subsHolder.innerHTML="<p class='loadmsg'>Could not load submissions: "+esc(e.message)+"</p>";});
+  return v;
+};
+
+/* ---------------- ERA staff sign-in (separate entry point, #staff) ---------------- */
+views.stafflogin=()=>{
+  const v=el("div","view");
+  v.appendChild(formHead("Restricted","ރެސްޓްރިކްޓެޑް","ERA staff sign in","ERA މުވައްޒަފުން ވަދޭ"));
+  if(auth&&isStaffUser()){
+    const n=el("div","note");
+    n.innerHTML=iconInfo()+"<span>Already signed in as ERA "+esc(auth.user.role)+" — the review console is in the sidebar.</span>";
+    v.appendChild(n);return v;
+  }
+  const se=authField("Email or username"),sp=authField("Password","password");
+  const sb=el("button","btn primary");sb.textContent="Sign in";
+  const smsg=el("p","updstamp");
+  const demo=el("div","note");demo.style.marginTop="14px";
+  demo.innerHTML=iconInfo()+"<span><b>Demo access</b> — username <b>ERAAdmin</b> · password <b>Demo1234</b> (admin console + a demo consultant profile).</span>";
+  sb.addEventListener("click",async()=>{
+    sb.disabled=true;smsg.textContent="Signing in…";
+    const r=await fetch("/api/auth",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"login",email:se.input.value,password:sp.input.value})});
+    const j=await r.json().catch(()=>({}));sb.disabled=false;
+    if(!r.ok){smsg.textContent=j.error||"Sign-in failed";return;}
+    if(!(j.user.role==="officer"||j.user.role==="admin")){smsg.textContent="This account is not an ERA staff account — consultants sign in from My account.";return;}
+    saveAuth(j);myConsultant=null;applyRole();syncAll();current="dashboard";go();
+  });
+  sp.input.addEventListener("keydown",e=>{if(e.key==="Enter")sb.click();});
+  const back=el("p","updstamp");back.style.marginTop="12px";
+  back.innerHTML="Not ERA staff? <a href='#' id='toConsultant' style='color:var(--brand-strong)'>Consultant sign in</a>.";
+  back.querySelector("a").addEventListener("click",e=>{e.preventDefault();current="account";go();});
+  const card=section(null,"ERA Review Console access","ރިވިއު ކޮންސޯލް",[se,sp,sb,smsg,demo,back]);
+  card.style.maxWidth="480px";
+  v.appendChild(card);
+  return v;
+};
+
+/* ---------------- account settings (credentials) ---------------- */
+views.settings=()=>{
+  const v=el("div","view");
+  if(!auth){current="account";return views.account();}
+  v.appendChild(formHead("Account settings","ސެޓިންގްސް","My account settings","އެކައުންޓް ސެޓިންގްސް"));
+
+  /* identity */
+  const nm=authField("Display name","text",auth.user.name||"");
+  const em=authField("Email (sign-in identity — cannot be changed here)","text",auth.user.email);
+  em.input.disabled=true;em.input.style.opacity=".6";
+  const sv=el("button","btn ghost");sv.textContent="Save name";
+  const nmsg=el("span","updstamp");
+  sv.addEventListener("click",async()=>{
+    const r=await fetch("/api/auth",{method:"PATCH",headers:Object.assign({"content-type":"application/json"},authHeaders()),body:JSON.stringify({name:nm.input.value})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){nmsg.textContent=j.error||"Save failed";return;}
+    auth.user.name=nm.input.value.trim();saveAuth(auth);syncAll();
+    nmsg.textContent="Saved ✓";
+  });
+  const idFoot=el("div","");idFoot.style.cssText="display:flex;align-items:center;gap:12px";idFoot.appendChild(sv);idFoot.appendChild(nmsg);
+  v.appendChild(section("1","Identity","ނަން",[nm,em,idFoot]));
+
+  /* password */
+  const cp=authField("Current password","password"),np=authField("New password (min 8 characters)","password"),np2=authField("Repeat new password","password");
+  const pb=el("button","btn primary");pb.textContent="Change password";
+  const pmsg=el("span","updstamp");
+  pb.addEventListener("click",async()=>{
+    if(np.input.value.length<8){pmsg.textContent="New password must be at least 8 characters.";return;}
+    if(np.input.value!==np2.input.value){pmsg.textContent="New passwords do not match.";return;}
+    pb.disabled=true;
+    const r=await fetch("/api/auth",{method:"PATCH",headers:Object.assign({"content-type":"application/json"},authHeaders()),body:JSON.stringify({currentPassword:cp.input.value,newPassword:np.input.value})});
+    const j=await r.json().catch(()=>({}));pb.disabled=false;
+    if(!r.ok){pmsg.textContent=j.error||"Could not change the password";return;}
+    cp.input.value=np.input.value=np2.input.value="";
+    pmsg.textContent="Password changed ✓ — other signed-in sessions were signed out.";
+  });
+  const pFoot=el("div","");pFoot.style.cssText="display:flex;align-items:center;gap:12px";pFoot.appendChild(pb);pFoot.appendChild(pmsg);
+  v.appendChild(section("2","Password","ޕާސްވޯޑް",[cp,np,np2,pFoot]));
+
+  if(auth.user.consultant_id){
+    const n=el("div","note");
+    n.innerHTML=iconInfo()+"<span class='en-only'>Your professional registry profile (company, address, qualifications, specialties) is edited on <b>My account</b>. ERA-controlled fields — registration no, category, status, license expiry — can only be changed by ERA.</span>";
+    v.appendChild(n);
+  }
+  return v;
+};
+
+/* ---------------- public EIA Consultants Registry ---------------- */
+views.registry=()=>{
+  const v=el("div","view");
+  v.appendChild((()=>{const h=el("div","pagehead");
+    h.innerHTML="<span class='eyebrow'><span class='en-only'>Public registry</span><span class='dv'>ޢާންމު ރަޖިސްޓްރީ</span></span>"+
+    "<h1><span class='en-only'>EIA Consultants Registry</span><span class='dv'>އީ.އައި.އޭ ކޮންސަލްޓަންޓުންގެ ރަޖިސްޓްރީ</span></h1>"+
+    "<p class='lede en-only'>Consultants registered with ERA to carry out environmental impact assessments in the Maldives. Entries are maintained and verified by ERA; each shows when it was last updated.</p>"+
+    "<p class='lede dv'>ދިވެހިރާއްޖޭގައި އީ.އައި.އޭ ހެދުމަށް ERA ގައި ރަޖިސްޓަރީވެފައިވާ ކޮންސަލްޓަންޓުން.</p>";return h;})());
+  const holder=el("div","");holder.innerHTML="<p class='loadmsg'>Loading the registry…</p>";
+  v.appendChild(holder);
+  /* live registry from the API; falls back to the bundled snapshot (consultants.json,
+     seeded from ERA's published list) when the API is unavailable — e.g. static preview */
+  fetch("/api/consultants")
+    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .catch(()=>fetch("consultants.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}))
+    .then(j=>{
+      holder.innerHTML="";
+      const rows=j.consultants||[];
+      const stamp=el("p","srcnote");
+      stamp.innerHTML="<b>"+rows.length+"</b> registered consultants · registry last updated <b>"+fmtDate(j.registry_updated)+"</b> · maintained by the Environmental Regulatory Authority"+(j.source?" · snapshot: "+esc(j.source):"");
+      holder.appendChild(stamp);
+      const filters=el("div","repofilters");
+      const q=el("input");q.placeholder="Search by name, registration no, email…";
+      const ksel=el("select");[["","All types"],["permanent","Permanent"],["temporary","Temporary"]].forEach(([val,lab])=>{const o=el("option",null,lab);o.value=val;ksel.appendChild(o);});
+      filters.appendChild(q);filters.appendChild(ksel);
+      holder.appendChild(filters);
+      const listWrap=el("div","");holder.appendChild(listWrap);
+      function render(){
+        const term=q.value.toLowerCase().trim();
+        const sel=rows.filter(c=>(!ksel.value||c.kind===ksel.value)&&
+          (!term||[c.name,c.reg_no,c.email,c.company,c.address,c.specialties].join(" ").toLowerCase().includes(term)));
+        listWrap.innerHTML="";
+        const tw=el("div","tablewrap");
+        const tbl=el("table","queue");
+        tbl.innerHTML="<thead><tr><th>Registration no.</th><th>Name</th><th>Category</th><th>Address</th><th>Contact</th><th>License expiry</th><th>Last updated</th></tr></thead>";
+        const tb=el("tbody");
+        sel.forEach(c=>{const tr=el("tr");
+          const exp=c.license_expiry?fmtDate(c.license_expiry):"—";
+          const expired=c.license_expiry&&new Date(c.license_expiry)<new Date();
+          tr.innerHTML="<td class='tnum'>"+esc(c.reg_no||"—")+(c.kind==="temporary"?" <span class='typechip'>temporary</span>":"")+"</td>"+
+            "<td style='font-weight:600'>"+esc(c.name)+(c.company?"<div class='updstamp'>"+esc(c.company)+"</div>":"")+"</td>"+
+            "<td class='tnum'>"+esc(c.category||"—")+"</td>"+
+            "<td>"+esc(c.address||"—")+"</td>"+
+            "<td>"+esc(c.email||"")+(c.phone?"<div class='updstamp'>"+esc(c.phone)+"</div>":"")+"</td>"+
+            "<td class='tnum'>"+exp+(expired?" <span class='vbadge bad'>expired</span>":"")+"</td>"+
+            "<td class='tnum updstamp'>"+fmtDate(c.last_updated_at)+"</td>";
+          tb.appendChild(tr);});
+        if(!sel.length){const tr=el("tr");tr.innerHTML="<td colspan='7' style='padding:24px;text-align:center;color:var(--ink-3)'>No consultants match.</td>";tb.appendChild(tr);}
+        tbl.appendChild(tb);tw.appendChild(tbl);listWrap.appendChild(tw);
+      }
+      [q,ksel].forEach(x=>x.addEventListener("input",render));
+      render();
+    })
+    .catch(e=>{holder.innerHTML="<p class='loadmsg'>Could not load the registry: "+esc(e.message)+"</p>";});
+  return v;
+};
+
+/* ---------------- ERA admin: manage the consultants registry ---------------- */
+views.consultants=()=>{
+  const v=el("div","view");
+  v.appendChild(formHead("Registry administration","ރަޖިސްޓްރީ","Consultants registry — ERA administration","ކޮންސަލްޓަންޓުންގެ ރަޖިސްޓްރީ ބެލެހެއްޓުން"));
+  const holder=el("div","");holder.innerHTML="<p class='loadmsg'>Loading all registry entries…</p>";
+  v.appendChild(holder);
+  const FIELDS=[["reg_no","Registration no."],["name","Name"],["category","Category (A/B…)"],["kind","permanent | temporary"],["company","Company"],["address","Address"],["phone","Phone"],["email","Email"],["license_expiry","License expiry (YYYY-MM-DD)"],["qualifications","Qualifications"],["specialties","Specialties"],["status","active | suspended | pending"],["era_notes","ERA internal notes"]];
+  function editForm(c,after){
+    const g=el("div","grid");const inputs={};
+    FIELDS.forEach(([k,lab])=>{
+      const w=el("div","field"+(["address","qualifications","specialties","era_notes"].includes(k)?" col2":""));
+      w.innerHTML="<div class='lab'><span class='en'><span class='en-only'>"+lab+"</span></span></div>";
+      const ctl=el("div","ctl");const i=el("input");
+      i.value=(k==="license_expiry"&&c[k])?String(c[k]).slice(0,10):(c[k]||"");
+      inputs[k]=i;ctl.appendChild(i);w.appendChild(ctl);g.appendChild(w);
+    });
+    const ver=el("label","verify");ver.style.cssText="display:inline-flex;gap:8px;align-items:center;font-size:12.5px;font-weight:600";
+    const vc=el("input");vc.type="checkbox";vc.checked=!!c.verified;
+    ver.appendChild(vc);ver.appendChild(document.createTextNode(" Verified — shown on the public registry"));
+    const sv=el("button","btn primary");sv.textContent=c.id?"Save changes":"Add to registry";
+    const msg=el("span","updstamp");
+    sv.addEventListener("click",async()=>{
+      const body={};FIELDS.forEach(([k])=>body[k]=inputs[k].value);
+      body.verified=vc.checked;
+      if(c.id)body.id=c.id;
+      const r=await adminFetch("/api/consultants",{method:c.id?"PATCH":"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok){msg.textContent=j.error||"Save failed";return;}
+      msg.textContent="Saved ✓ — stamped as updated by you, "+fmtDate(j.last_updated_at);
+      after&&after(j);
+    });
+    const foot=el("div","");foot.style.cssText="display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap";
+    foot.appendChild(ver);foot.appendChild(sv);foot.appendChild(msg);
+    const w2=el("div","");w2.appendChild(g);w2.appendChild(foot);
+    if(c.id){
+      const stamp=el("p","updstamp");
+      stamp.textContent="Entry "+(c.reg_no||"#"+c.id)+" · last updated "+fmtDate(c.last_updated_at)+(c.updated_by?" by "+c.updated_by:"")+(c.account_email?" · portal account: "+c.account_email:" · no portal account linked");
+      w2.appendChild(stamp);
+    }
+    return w2;
+  }
+  adminFetch("/api/consultants?all=1")
+    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .then(rows=>{
+      holder.innerHTML="";
+      if(role!=="admin"){
+        const n=el("div","note");n.innerHTML=iconInfo()+"<span>Officer access — registry entries are listed below; edits require ERA Admin.</span>";
+        holder.appendChild(n);
+      }
+      const pend=rows.filter(c=>c.status==="pending"||!c.verified).length;
+      const kpis=el("div","kpis");
+      [["received","Registry entries",rows.length],["review","Awaiting verification",pend],["approved","Public (verified)",rows.filter(c=>c.verified&&c.status!=="pending").length]].forEach(k=>{
+        const t=el("div","kpi "+k[0]);t.innerHTML="<div class='kv tnum'>"+k[2]+"</div><div class='kl en-only'>"+k[1]+"</div>";kpis.appendChild(t);});
+      holder.appendChild(kpis);
+      const editHolder=el("div","");
+      if(role==="admin"){
+        const add=el("button","btn ghost");add.textContent="+ Add registry entry";add.style.marginBottom="14px";
+        add.addEventListener("click",()=>{editHolder.innerHTML="";editHolder.appendChild(section("+","New registry entry","އައު އެންޓްރީ",editForm({},()=>{current="consultants";go();})));editHolder.scrollIntoView({behavior:"smooth"});});
+        holder.appendChild(add);
+      }
+      const tw=el("div","tablewrap");
+      const tbl=el("table","queue");
+      tbl.innerHTML="<thead><tr><th>Reg no.</th><th>Name</th><th>Status</th><th>Verified</th><th>Account</th><th>License expiry</th><th>Last updated</th></tr></thead>";
+      const tb=el("tbody");
+      rows.forEach(c=>{const tr=el("tr");
+        const expired=c.license_expiry&&new Date(c.license_expiry)<new Date();
+        tr.innerHTML="<td class='tnum'>"+esc(c.reg_no||"—")+(c.kind==="temporary"?" <span class='typechip'>temp</span>":"")+"</td>"+
+          "<td style='font-weight:600'>"+esc(c.name||"—")+"</td>"+
+          "<td>"+(c.status==="active"?"<span class='vbadge ok'>active</span>":c.status==="pending"?"<span class='vbadge pending'>pending</span>":"<span class='vbadge bad'>"+esc(c.status)+"</span>")+"</td>"+
+          "<td>"+(c.verified?"✓":"—")+"</td>"+
+          "<td class='updstamp'>"+esc(c.account_email||"—")+"</td>"+
+          "<td class='tnum'>"+(c.license_expiry?fmtDate(c.license_expiry):"—")+(expired?" <span class='vbadge bad'>exp</span>":"")+"</td>"+
+          "<td class='tnum updstamp'>"+fmtDate(c.last_updated_at)+"</td>";
+        if(role==="admin")tr.addEventListener("click",()=>{
+          editHolder.innerHTML="";
+          editHolder.appendChild(section("✎","Edit — "+(c.name||c.reg_no),"އިޞްލާޙުކުރޭ",editForm(c,()=>{})));
+          editHolder.scrollIntoView({behavior:"smooth"});
+        });
+        tb.appendChild(tr);});
+      tbl.appendChild(tb);tw.appendChild(tbl);
+      holder.appendChild(section(null,"All entries — including pending & suspended","ހުރިހާ އެންޓްރީއެއް",tw));
+      holder.appendChild(editHolder);
+    })
+    .catch(e=>{holder.innerHTML="<p class='loadmsg'>Could not load: "+esc(e.message)+"</p>";});
+  return v;
+};
+
 /* ---------------- nav & chrome ---------------- */
 const NAV_APPLICANT=[
   {id:"stats",en:"Dashboard",dv:"ޑޭޝްބޯޑް",step:"▦"},
   {id:"repository",en:"EIA Repository",dv:"ރިޕޮޒިޓަރީ",step:"≡"},
+  {id:"registry",en:"Consultants Registry",dv:"ކޮންސަލްޓަންޓުން",step:"❖"},
   {id:"overview",en:"Overview",dv:"ޚުލާސާ",step:"◆"},
   {id:"screening",en:"Screening",dv:"ސްކްރީނިންގ",step:"S",optional:1},
   {id:"application",en:"EIA Application",dv:"އެޕްލިކޭޝަން",step:"1"},
   {id:"report",en:"Report Submission",dv:"ރިޕޯޓް",step:"2"},
   {id:"addendum",en:"Addendum",dv:"އެޑެންޑަމް",step:"3"},
-  {id:"manifest",en:"My submission",dv:"އަހަރެންގެ ހުށަހެޅުން",step:"⎙"},
+  {id:"manifest",en:"Find a submission",dv:"ހުށަހެޅުން ހޯދާ",step:"⎙"},
+  {id:"account",en:"My account",dv:"އެކައުންޓް",step:"◉"},
 ];
 const NAV_ADMIN=[
   {id:"dashboard",en:"Dashboard",dv:"ޑޭޝްބޯޑް",step:"▦"},
   {id:"review",en:"Review submission",dv:"ރިވިއު",step:"✓"},
+  {id:"consultants",en:"Consultants registry",dv:"ރަޖިސްޓްރީ",step:"❖"},
 ];
 function renderNav(){
   const nav=$("#nav");
-  nav.querySelectorAll(".navbtn").forEach(n=>n.remove());
+  nav.querySelectorAll(".navbtn,.grouplabel.era").forEach(n=>n.remove());
   const gl=nav.querySelector(".grouplabel");
-  if(gl)gl.innerHTML=isStaff()
-    ?"<span class='en-only'>ERA Review Console</span><span class='dv'>ރިވިއު ކޮންސޯލް</span>"
-    :"<span class='en-only'>Environmental Impact Assessment</span><span class='dv'>ތިމާވެށީގެ އަސަރު</span>";
-  (isStaff()?NAV_ADMIN:NAV_APPLICANT).forEach(item=>{
+  if(gl)gl.innerHTML="<span class='en-only'>Environmental Impact Assessment</span><span class='dv'>ތިމާވެށީގެ އަސަރު</span>";
+  const mk=item=>{
     const b=el("button","navbtn"+(current===item.id?" active":""));
     const right=item.optional?"<span class='opt-badge'><span class='en-only'>Optional</span><span class='dv'>އިޚްތިޔާރީ</span></span>":"";
     b.innerHTML="<span class='step'>"+item.step+"</span><span class='txt'><span class='en-only'>"+item.en+"</span><span class='dv'>"+item.dv+"</span></span>"+right;
     b.addEventListener("click",()=>{current=item.id;go();});
     nav.appendChild(b);
-  });
+  };
+  NAV_APPLICANT.forEach(mk);
+  if(isStaff()){
+    const g2=el("div","grouplabel era","<span class='en-only'>ERA Review Console</span><span class='dv'>ރިވިއު ކޮންސޯލް</span>");
+    g2.style.marginTop="14px";
+    nav.appendChild(g2);
+    NAV_ADMIN.forEach(mk);
+  }
 }
-function setRole(r){
-  role=r;current=isStaff()?"dashboard":"overview";
-  if(isStaff()&&!staffKey())askAdminKey();
+/* No role toggle — the signed-in account decides what is shown: staff accounts
+   get the ERA console entries appended to the nav, everyone else sees the
+   public/consultant portal. */
+function applyRole(){
+  role=isStaffUser()?auth.user.role:"applicant";
   document.body.classList.toggle("role-admin",isStaff());
-  $("#roleApp").classList.toggle("on",r==="applicant");
-  $("#roleOfficer").classList.toggle("on",r==="officer");
-  $("#roleAdmin").classList.toggle("on",r==="admin");
-  syncAll();go();
 }
 function renderTopBar(){
   const cb=$("#casebar");
   const roleFlag=role==="admin"
     ?"<span class='en-only'>ERA Admin view</span><span class='dv'>ERA އެޑްމިން</span>"
     :"<span class='en-only'>ERA Officer view</span><span class='dv'>ERA އޮފިސަރު</span>";
-  if(isStaff()){
+  if(isStaff()&&["dashboard","review","consultants"].includes(current)){
     if(current==="review"&&reviewData){const s=reviewData;const cd=s.case_data||{};
       cb.innerHTML="<span class='ref'>"+iconGrid()+esc(s.ref)+"</span>"+
         cell("Proponent","ފަރާތް",esc((cd.proponent||{}).name||"—"))+cell("Project","މަޝްރޫޢު",esc((cd.project||{}).name||"—"))+cell("Officer","އޮފިސަރު",esc(s.officer))+
@@ -1610,17 +2174,8 @@ function renderTopBar(){
     }
     return;
   }
-  const vl={stats:["Statistics","ތަފާސްހިސާބު"],repository:["Repository","ރިޕޮޒިޓަރީ"],overview:["Working record","މަސައްކަތު ރެކޯޑް"],screening:["Screening","ސްކްރީނިންގ"],application:["EIA Application","އެޕްލިކޭޝަން"],report:["EIA Report","ރިޕޯޓް"],addendum:["Addendum","އެޑެންޑަމް"],manifest:["Manifest","މެނިފެސްޓް"]};
-  const d=vl[current]||vl.overview;
-  const refShown=(current==="manifest"&&manifestData)?manifestData.ref:eiaCase.referenceNo;
-  cb.innerHTML=
-    "<span class='ref'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M4 4h16v6H4zM4 14h16v6H4z'/></svg>"+esc(refShown)+"</span>"+
-    cell("Proponent","ފަރާތް",esc(eiaCase.proponent.name))+
-    cell("Project","މަޝްރޫޢު",esc(eiaCase.project.name))+
-    cell("Location","ރަށް",esc(eiaCase.project.island+", "+eiaCase.project.atoll))+
-    cell("Consultant","ކޮންސަލްޓަންޓް",esc(eiaCase.consultant.name))+
-    "<span class='spacer'></span>"+
-    "<span class='stagepill' style='background:var(--sea-soft);color:var(--sea)'><span class='en-only'>"+d[0]+"</span><span class='dv'>"+d[1]+"</span></span>";
+  /* portal side: nothing in the top bar besides the language & theme toggles */
+  cb.innerHTML="";
 }
 function cell(k,kd,v){return "<span class='cell'><span class='k'><span class='en-only'>"+k+"</span><span class='dv'>"+kd+"</span></span><span class='v' title=\""+String(v).replace(/"/g,'')+"\">"+v+"</span></span>";}
 
@@ -1633,7 +2188,34 @@ function renderJson(){
     .replace(/: (true|false)/g,': <span class="jn">$1</span>');
   $("#jsonOut").innerHTML=j;
 }
-function syncAll(){renderTopBar();renderJson();}
+function syncAll(){renderTopBar();renderJson();renderAcct();}
+/* persistent account block at the bottom of the sidebar:
+   signed out → Sign in / Register; signed in → name, role, Settings, Sign out */
+function renderAcct(){
+  const w=$("#sideAcct");
+  if(!w)return;
+  w.innerHTML="";
+  if(!auth){
+    const b=el("button","signin");
+    b.innerHTML="<span class='en-only'>Sign in / Register</span><span class='dv'>ވަދޭ / ރަޖިސްޓަރ</span>";
+    b.addEventListener("click",()=>{current="account";go();});
+    w.appendChild(b);
+  }else{
+    const who=el("div","who");
+    who.innerHTML="<span class='dotv'></span><span class='nm'>"+esc(auth.user.name||auth.user.email)+"</span>"+
+      (isStaffUser()?"<span class='rolechip'>ERA "+esc(auth.user.role)+"</span>":"<span class='rolechip' style='background:var(--ok-soft);color:var(--ok)'>Consultant</span>");
+    w.appendChild(who);
+    const btns=el("div","abtns");
+    const st=el("button");st.innerHTML="<span class='en-only'>⚙ Settings</span><span class='dv'>ސެޓިންގްސް</span>";
+    st.addEventListener("click",()=>{current="settings";go();});
+    const so=el("button");so.innerHTML="<span class='en-only'>Sign out</span><span class='dv'>ނުކުމޭ</span>";
+    so.addEventListener("click",doLogout);
+    btns.appendChild(st);btns.appendChild(so);
+    w.appendChild(btns);
+  }
+  const sl=$("#staffLink");
+  if(sl)sl.style.display=auth?"none":"inline";
+}
 function go(){
   renderNav();
   const c=$("#canvas");c.innerHTML="";
@@ -1648,18 +2230,8 @@ function setLang(mode){document.body.classList.remove("lang-en","lang-dv");docum
 $("#langEn").onclick=()=>setLang("en");
 $("#langDv").onclick=()=>setLang("dv");
 
-/* role */
-$("#roleApp").onclick=()=>setRole("applicant");
-$("#roleOfficer").onclick=()=>setRole("officer");
-$("#roleAdmin").onclick=()=>setRole("admin");
-
-/* highlight shared */
-$("#hlBtn").addEventListener("click",()=>{const b=$("#hlBtn");b.classList.toggle("on");
-  document.body.classList.add("hl-shared");setTimeout(()=>document.body.classList.remove("hl-shared"),1200);});
-
 /* drawer */
 function openDrawer(o){$("#drawer").classList.toggle("open",o);$("#scrim").classList.toggle("on",o);$("#drawer").setAttribute("aria-hidden",!o);}
-$("#drawerBtn").onclick=()=>openDrawer(!$("#drawer").classList.contains("open"));
 $("#drawerClose").onclick=()=>openDrawer(false);
 $("#scrim").onclick=()=>openDrawer(false);
 
@@ -1679,12 +2251,18 @@ try{
     Object.assign(eiaCase.consultant,d.case.consultant||{});
     Object.assign(eiaCase.report,d.case.report||{});
     Object.assign(eiaCase.addendum,d.case.addendum||{});
+    if(Array.isArray(d.case.team))eiaCase.team=d.case.team;
     if(d.case.documents)Object.keys(DOC_CATS).forEach(k=>{if(Array.isArray(d.case.documents[k]))eiaCase.documents[k]=d.case.documents[k].filter(f=>f&&f.status!=="uploading");});
     if(Array.isArray(d.checklist)&&d.checklist.length===REPORT_ITEMS.length)checklistState=d.checklist;
   }
 }catch(e){}
 setLang("en");
-renderTopBar();renderJson();go();
+applyRole();syncAll();go();
+if(auth)loadMe();  /* validates the stored session; clears it if expired */
 const hashRef=(location.hash.match(/ref=([^&]+)/)||[])[1];
 if(hashRef)openManifest(decodeURIComponent(hashRef));
+/* #staff → the separate ERA staff sign-in page */
+function staffHash(){if(location.hash==="#staff"){current="stafflogin";go();}}
+window.addEventListener("hashchange",staffHash);
+staffHash();
 </script>

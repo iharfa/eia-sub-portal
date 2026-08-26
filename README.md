@@ -1,57 +1,77 @@
 # EIA Submission Portal (eia-sub-portal)
 
-Combined **applicant submission portal + ERA review dashboard** for Maldives EIA workflows —
-the merge of the [eia-portal](https://github.com/iharfa/eia-portal) design mockup (front end)
-and the [era-dashboard](https://github.com/iharfa/era-dashboard) management model (workflow,
-assignment, audit), now with a real database and real file uploads.
+Combined **applicant submission portal + ERA review dashboard** for Maldives EIA workflows,
+with **role-based accounts**: the public browses, registered EIA consultants submit and track,
+ERA officers work the queue, and ERA admins decide and administer the consultants registry.
 
-## What it does
+## The three levels of users
 
-**Applicant side** (public, bilingual EN / ދިވެހި):
+**Public** (no account):
 
-- Opens on a **public statistics dashboard**: EIAs received (all years / this year / this month), types of EIAs by project category, document type, and year — computed from ERA's published-report names.
-- **EIA Repository**: all ~2,100 published reports from [era.gov.mv/reports.html](https://www.era.gov.mv/reports.html) with search, year/type filters, and links to the official SharePoint folders. Snapshot lives in `reports.json`; refresh with `python scripts/build_reports.py` (groups by report *name* only — no report contents are fetched).
-- The four ERA forms as one lifecycle: Screening (optional) → EIA Application → Report Submission → Addendum (attaches to a real previously-submitted report).
-- Real file uploads per document category — EIA report docs plus raw-data packages: GIS / island shapefiles with sampling locations, baseline survey data, water quality & environmental sampling data, bathymetry, lab testing reports, site photos.
-- **Every file requires a typed description of its contents.** Submission is blocked without one.
-- **Expedited review**: can only be requested when the raw-data packages (GIS, baseline, water sampling, lab reports) are all uploaded and described — checked live in the form.
-- On submit, the portal generates a **document manifest report**: the formal record of every uploaded file with its declared contents, printable as the submission receipt. Retrievable any time by reference number (`#ref=EIA-R/2026/0001`).
+- **Statistics dashboard** — EIAs received by year/category/document type, computed from ERA's published-report names.
+- **EIA Repository** — all ~2,100 published reports from era.gov.mv with search and filters.
+- **EIA Consultants Registry** — the ERA-maintained public list of registered consultants (seeded from the published 10 Aug 2026 PDF): registration no, category, contact, license expiry (expired licenses are marked), and a **last-updated stamp on every entry** plus a registry-wide one.
+- Manifest lookup by reference number (`#ref=EIA-R/2026/0001`) — the printable submission receipt.
 
-**ERA admin side** (toggle top-left, gated by admin key):
+**EIA Consultants** (register in the portal; ERA verifies):
 
-- Live submissions queue with KPI tiles, file counts/sizes, expedited flags.
-- Review screen: applicant record, every file with its declared contents + per-file verification, the 22-item contents declaration, screening decisions (5 outcomes), approve / request revisions / reject, officer assignment, reviewer notes, audit trail.
+- Email + password accounts. Registering links to an existing registry entry by email, or creates a **pending** registry entry that ERA verifies before it appears publicly.
+- **My account dashboard**: registry profile (verification badge, license expiry, last-updated stamp), self-service edits to contact/professional fields — ERA-controlled fields (reg no, category, status, expiry) are locked.
+- **My submissions** — every screening / application / report / addendum submitted from the account, with live status, a **status timeline** (submitted → under review → revisions → decision, dated from the audit trail), and **issues flagged by ERA** with a reply box.
+- **Autofill**: on any form's consultant section, one click fills name / license no / expiry / email from the verified registry record — still editable afterwards.
+- **Project team**: surveyors and other supporting professionals are recorded per submission (name, role, registration no) and shown to ERA and on the manifest.
+- Submitting requires being signed in — every submission is tied to the account and the registry record (reg no + verification state are stamped into the record; expired licenses are auto-flagged to ERA).
+
+There is **no role toggle** — what you see is decided by the signed-in account: staff accounts get the ERA Review Console section appended to the sidebar nav.
+
+> **Demo access:** username `ERAAdmin` · password `Demo1234` — auto-provisioned on first login, opens **both** the consultant dashboard and the ERA admin console (the account is an admin with a linked demo registry entry).
+
+**ERA staff** (accounts created with `npm run staff`; legacy env keys still work as a fallback):
+
+- **Officer**: submissions queue with open-issue counts, per-file verification, officer assignment, notes, mark under review, **flag issues** (general, or pinned to a document + page — with the document open **in the browser viewer**), resolve issues.
+- **Admin**: everything above plus decisions (approve / request revisions / reject, screening outcomes) and **registry administration** — add/edit/verify consultant entries; every edit stamps `last updated … by …` and lands in the audit log.
+
+## Checks & balances built into the flow
+
+- Required document categories are enforced **server-side** per form type (the browser checks are a convenience, the API is the authority).
+- Every file needs a typed description; expedited review requires the raw-data packages.
+- An addendum must reference an EIA report that actually exists in this portal.
+- **Approval is blocked** while any issue is open or any file is unverified — enforced by the API, explained in the review console.
+- Officers cannot record decisions; consultants cannot touch ERA-controlled registry fields; issue replies only work on your own submission.
+- Everything lands in the audit trail: status changes, decisions, file verification, issue flag/reply/resolve, registry edits, account registration.
 
 ## Stack
 
 - Static front end: one `index.html` built from `src/eia-portal.template.html` (`python src/build.py`). No framework.
-- `api/` — Vercel serverless functions (plain JS).
-- **Neon Postgres** — submissions, files, audit (`schema.sql`, `npm run db:init`).
-- **Vercel Blob** — file storage, client-direct uploads (large shapefiles bypass the 4.5MB function body limit).
+- `api/` — Vercel serverless functions (plain JS): `auth`, `consultants`, `submissions`, `submission`, `upload`.
+- **Neon Postgres** — submissions, files, audit, users, sessions, consultants, issues (`schema.sql`, `npm run db:init` — idempotent, safe on an existing database).
+- **Vercel Blob** — file storage, client-direct uploads.
+- Auth: scrypt password hashes, 30-day DB-backed bearer sessions. No extra dependencies.
 
 ## Environment variables
 
 | Var | Purpose |
 |---|---|
 | `DATABASE_URL` | Neon Postgres connection string |
-| `BLOB_READ_WRITE_TOKEN` | Vercel Blob store token (auto-set when the store is connected to the project) |
-| `ADMIN_KEY` | Key for the ERA Admin console level (full access incl. decisions) |
-| `OFFICER_KEY` | Key for the ERA Officer console level (queue work: verify files, assign, notes, mark under review — no decisions) |
+| `BLOB_READ_WRITE_TOKEN` | Vercel Blob store token |
+| `ADMIN_KEY` / `OFFICER_KEY` | *(optional legacy fallback)* shared-key access to the ERA console |
 
 ## Setup
 
 ```bash
 npm install
 # set DATABASE_URL, then:
-npm run db:init
+npm run db:init                 # create/upgrade tables (idempotent)
+npm run db:seed-consultants     # seed the registry from ERA's published list (77 entries)
+npm run staff -- admin@era.gov.mv <password> "Admin Name" admin
+npm run staff -- officer@era.gov.mv <password> "Officer Name" officer
 # edit src/eia-portal.template.html, then:
 npm run html
 vercel deploy --prod
 ```
 
-## Demo-scale placeholders (upgrade path)
+## Remaining production notes
 
-- The reference number is the lookup token for manifests — add applicant accounts for production.
-- Staff access is two shared keys (officer / admin) — replace with real staff auth + per-user roles for production.
-- Blob store is public-read; ~250MB demo budget, 200MB/file cap in `api/upload.js`.
-- era-dashboard's Excel-seeded monitoring/inspection modules are not merged; point them at this database as a next step.
+- Blob store is public-read (anyone with a file URL can open it); 200MB/file cap in `api/upload.js`.
+- No email delivery yet — password resets and issue notifications would be the next step.
+- era-dashboard's Excel-seeded monitoring/inspection modules are not merged.

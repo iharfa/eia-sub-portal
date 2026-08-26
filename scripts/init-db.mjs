@@ -6,6 +6,7 @@ if (!url) { console.error("DATABASE_URL not set"); process.exit(1); }
 const sql = neon(url);
 
 const stmts = readFileSync(new URL("../schema.sql", import.meta.url), "utf8")
+  .split("\n").map(l => l.replace(/--.*$/, "")).join("\n")   // strip comments (may contain ';')
   .split(";").map(s => s.trim()).filter(Boolean);
 for (const s of stmts) {
   await sql.query(s);
